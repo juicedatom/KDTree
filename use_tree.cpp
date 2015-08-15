@@ -37,6 +37,7 @@ int main() {
     std::vector<std::vector<double> > points = get_points(fname);
     KDTree<3, int> kd(points);
     std::cout<<"size of points: " << points.size() << std::endl;
+    kd.insert(points[0]);
+    kd.sayhi();
 
-    std::cout<<kd.dim();
 }
