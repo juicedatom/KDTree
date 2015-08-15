@@ -31,8 +31,30 @@ std::vector<std::vector<double> > get_points(std::string fname) {
     return points;
 }
 
+struct gen_rand { 
+    double range;
+public:
+    gen_rand(double r=1.0) : range(r) {}
+    double operator()() { 
+        return (rand()/(double)RAND_MAX) * range;
+    }
+};
+
+std::vector< std::vector<double> > genRandPoints(int n, int dim) {
+    std::vector< std::vector<double> > ret;
+    std::vector<double> x(dim);
+
+    for(int i=0; i<n; i++ ){
+        std::generate_n(x.begin(), dim, gen_rand());
+        ret.push_back(x);
+    }
+
+    return ret;
+}
+
 int main() {
 
+    //Test some stuff with the file
     const std::string fname = "points.in";
     std::vector<std::vector<double> > points = get_points(fname);
     KDTree<3, int> kd(points);
@@ -40,4 +62,9 @@ int main() {
     kd.insert(points[0]);
     kd.sayhi();
 
+    //make some points
+    const int dim = 8;
+    int n = 1000;
+    std::vector< std::vector<double> > pts = genRandPoints(n, dim);
+    KDTree<dim, int> kdb(pts);
 }
