@@ -5,14 +5,20 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
+#include "Point.hpp"
+
 template <size_t D, typename ele>
 class KDNode {
     public:
-        KDNode(std::vector<double> _vec, ele _ele, unsigned int _sortedDim);
+        KDNode(Point<D, ele> p, unsigned int _sortedDim);
         KDNode<D, ele>(){};
         KDNode<D, ele> getRight();
         KDNode<D, ele> getLeft();
-        KDNode<D, ele> getElement();
+
+        double& operator[] (int x) {
+            return this->_point[x];
+        }
+
         double atDim(int dim);
         size_t getDim(){ return D; }
         unsigned int getSortedDim(){ return _sortedDim; }
@@ -26,30 +32,29 @@ class KDNode {
 
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version)  {
-            ar & _vec & _ele & _left & _right & _sortedDim;
+            ar & _point & _left & _right & _sortedDim;
         }
 
     private:
-        ele _ele;
-        std::vector<double> _vec;
         unsigned int _sortedDim;
+        Point<D, ele> _point;
 };
 
+
 template <size_t D, typename ele>
-KDNode<D, ele>::KDNode(std::vector<double> _vec, ele _ele, unsigned int _sortedDim) {
-    this->_ele = _ele;
-    this->_vec = _vec;
+KDNode<D, ele>::KDNode(Point<D, ele> p, unsigned int _sortedDim) {
+    this->_point = p;
     this->_sortedDim = _sortedDim;
 }
 
 template <size_t D, typename ele>
 double KDNode<D, ele>::atDim(int dim) {
-    return this->_vec[dim];
+    return this->_point[dim];
 }
 
 template <size_t D, typename ele>
 double KDNode<D, ele>::atSortedDim() {
-    return this->_vec[this->_sortedDim];
+    return this->_point[this->_sortedDim];
 }
 
 template <size_t D, typename ele>
