@@ -12,11 +12,11 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
-template <size_t D, typename ele>
+template <size_t D, typename V, typename E>
 class KDTree {
     public:
         //This one is for given points
-        KDTree(std::vector< Point<D, ele> >);
+        KDTree(std::vector< Point<D, V, E> >);
 
         //This one is for active learning
         KDTree();
@@ -30,14 +30,14 @@ class KDTree {
         size_t size();
         bool isEmpty();
 
-        void insert(Point<D, ele> point);
+        void insert(Point<D, V, E> point);
         void write(std::string fname);
         void read(std::string fname);
 
     private:
-        boost::shared_ptr<KDNode<D, ele>> _head;
-        boost::shared_ptr<KDNode<D, ele>> buildTree(std::vector< Point<D, ele> > points, int depth);
-        void traverse(boost::shared_ptr<KDNode<D, ele>>, std::string gg);
+        boost::shared_ptr<KDNode<D,V,E>> _head;
+        boost::shared_ptr<KDNode<D,V,E>> buildTree(std::vector< Point<D,V,E>> points, int depth);
+        void traverse(boost::shared_ptr<KDNode<D, V, E>>, std::string gg);
         friend class boost::serialization::access;
 
         template<class Archive>
@@ -49,37 +49,37 @@ class KDTree {
         }
 };
 
-template <size_t D, typename ele>
+template <size_t D, typename V, typename E>
 struct CompareByDim {
     CompareByDim(int d) {
         this-> d = d;
     }
 
-    bool operator () (Point<D, ele> i, Point<D, ele> j) {
+    bool operator () (Point<D, V, E> i, Point<D, V, E> j) {
         return i[d] < j[d];
     }
 
     int d;
 };
 
-template <size_t D, typename ele>
-std::vector< Point<D, ele> > sortByDim(std::vector<Point<D, ele> > points, int d) {
-    std::sort(points.begin(), points.end(), CompareByDim<D, ele>(d));
+template <size_t D, typename V, typename E>
+std::vector< Point<D, V, E> > sortByDim(std::vector<Point<D, V, E> > points, int d) {
+    std::sort(points.begin(), points.end(), CompareByDim<D, V, E>(d));
     return points;
 }
 
-template <size_t D, typename ele>
-KDTree<D, ele>::KDTree() {}
+template <size_t D, typename V, typename E>
+KDTree<D, V, E>::KDTree() {}
 
-template <size_t D, typename ele>
-KDTree<D, ele>::KDTree(std::vector<Point<D, ele>> points) {
-    boost::shared_ptr<KDNode<D, ele>> _head = buildTree(points, 0);
+template <size_t D, typename V, typename E>
+KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points) {
+    boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0);
     this->_head = std::move(_head);
 }
 
 //TODO should i look at the last few nodes?
-template <size_t D, typename ele>
-boost::shared_ptr<KDNode<D, ele>> KDTree<D, ele>::buildTree(std::vector<Point<D, ele>> points, int depth) {
+template <size_t D, typename V, typename E>
+boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(std::vector<Point<D, V, E>> points, int depth) {
     if (points.size() < 1) {
         return NULL;
     }
@@ -87,10 +87,10 @@ boost::shared_ptr<KDNode<D, ele>> KDTree<D, ele>::buildTree(std::vector<Point<D,
     int axis = depth % D;
     points = sortByDim(points, axis);
     int median = points.size() / 2;
-    boost::shared_ptr<KDNode<D, ele>> node(new KDNode<D, ele>(points[median], axis));
+    boost::shared_ptr<KDNode<D, V, E>> node(new KDNode<D, V, E>(points[median], axis));
 
-    std::vector<Point<D, ele>> _left(points.begin(), points.begin() + median);
-    std::vector<Point<D, ele>> _right(points.begin() + median + 1, points.end());
+    std::vector<Point<D, V, E>> _left(points.begin(), points.begin() + median);
+    std::vector<Point<D, V, E>> _right(points.begin() + median + 1, points.end());
 
     depth++;
     node->_left = buildTree(_left, depth);
@@ -98,13 +98,13 @@ boost::shared_ptr<KDNode<D, ele>> KDTree<D, ele>::buildTree(std::vector<Point<D,
     return node;
 }
 
-template <size_t D, typename ele>
-void KDTree<D, ele>::insert(Point<D, ele> p) {
+template <size_t D, typename V, typename E>
+void KDTree<D, V, E>::insert(Point<D, V, E> p) {
     //this is a thing
     int dim = 0;
     int left = 0;
-    boost::shared_ptr<KDNode<D, ele> > cur = _head;
-    boost::shared_ptr<KDNode<D, ele> > last = NULL;
+    boost::shared_ptr<KDNode<D, V, E> > cur = _head;
+    boost::shared_ptr<KDNode<D, V, E> > last = NULL;
     std::cout<<"hi!"<<std::endl;
     while(1) {
 
@@ -126,7 +126,7 @@ void KDTree<D, ele>::insert(Point<D, ele> p) {
         dim = (dim + 1) % D;
     }
     std::cout<<"inserting: "<<std::endl;
-    boost::shared_ptr<KDNode<D, ele> > tmp(new KDNode<D, ele>(p, (dim-1)%D));
+    boost::shared_ptr<KDNode<D, V, E> > tmp(new KDNode<D, V, E>(p, (dim-1)%D));
     tmp->printNode();
     if (left) {
         last->_left = tmp;
@@ -135,13 +135,13 @@ void KDTree<D, ele>::insert(Point<D, ele> p) {
     }
 }
 
-template <size_t D, typename ele>
-void KDTree<D, ele>::sayhi() {
+template <size_t D, typename V, typename E>
+void KDTree<D, V, E>::sayhi() {
     this->traverse(this->_head, "");
 }
 
-template <size_t D, typename ele>
-void KDTree<D, ele>::traverse(boost::shared_ptr<KDNode<D, ele> > cur, std::string loc) {
+template <size_t D, typename V, typename E>
+void KDTree<D, V, E>::traverse(boost::shared_ptr<KDNode<D, V, E> > cur, std::string loc) {
     if (cur == NULL) {
         return;
     }
@@ -151,20 +151,20 @@ void KDTree<D, ele>::traverse(boost::shared_ptr<KDNode<D, ele> > cur, std::strin
     this->traverse(cur->_right, loc + "r ");
 }
 
-template <size_t D, typename ele>
-size_t KDTree<D, ele>::dim() {
+template <size_t D, typename V, typename E>
+size_t KDTree<D, V, E>::dim() {
     return D;
 }
 
-template <size_t D, typename ele>
-void KDTree<D, ele>::write(std::string fname) {
+template <size_t D, typename V, typename E>
+void KDTree<D, V, E>::write(std::string fname) {
     std::ofstream ofs(fname);
     boost::archive::binary_oarchive oa(ofs);
     oa & this->_head;
 }
 
-template<size_t D, typename ele>
-void KDTree<D, ele>::read(std::string fname) {
+template <size_t D, typename V, typename E>
+void KDTree<D, V, E>::read(std::string fname) {
     std::ifstream ifs(fname);
     boost::archive::binary_iarchive ia(ifs);
     ia & this->_head;

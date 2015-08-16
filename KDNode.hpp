@@ -7,58 +7,58 @@
 
 #include "Point.hpp"
 
-template <size_t D, typename ele>
+template <size_t D, typename V, typename E>
 class KDNode {
     public:
-        KDNode(Point<D, ele> p, unsigned int _sortedDim);
-        KDNode<D, ele>(){};
-        KDNode<D, ele> getRight();
-        KDNode<D, ele> getLeft();
+        KDNode(Point<D, V, E> p, unsigned int _sortedDim);
+        KDNode<D, V, E>(){};
+        KDNode<D, V, E> getRight();
+        KDNode<D, V, E> getLeft();
 
-        double& operator[] (int x) {
+        V& operator[] (int x) {
             return this->_point[x];
         }
 
-        double atDim(int dim);
+        V atDim(int dim);
         size_t getDim(){ return D; }
         unsigned int getSortedDim(){ return _sortedDim; }
-        double atSortedDim();
-        boost::shared_ptr<KDNode<D, ele>> _left;
-        boost::shared_ptr<KDNode<D, ele>> _right;
+        V atSortedDim();
+        boost::shared_ptr<KDNode<D, V, E>> _left;
+        boost::shared_ptr<KDNode<D, V, E>> _right;
         void printNode();
 
         //Everything serialization related
         friend class boost::serialization::access;
 
-        template<class Archive>
+        template <class Archive>
         void serialize(Archive & ar, const unsigned int version)  {
             ar & _point & _left & _right & _sortedDim;
         }
 
     private:
         unsigned int _sortedDim;
-        Point<D, ele> _point;
+        Point<D, V, E> _point;
 };
 
 
-template <size_t D, typename ele>
-KDNode<D, ele>::KDNode(Point<D, ele> p, unsigned int _sortedDim) {
+template <size_t D, typename V, typename E>
+KDNode<D, V, E>::KDNode(Point<D, V, E> p, unsigned int _sortedDim) {
     this->_point = p;
     this->_sortedDim = _sortedDim;
 }
 
-template <size_t D, typename ele>
-double KDNode<D, ele>::atDim(int dim) {
+template <size_t D, typename V, typename E>
+V KDNode<D, V, E>::atDim(int dim) {
     return this->_point[dim];
 }
 
-template <size_t D, typename ele>
-double KDNode<D, ele>::atSortedDim() {
+template <size_t D, typename V, typename E>
+V KDNode<D, V, E>::atSortedDim() {
     return this->_point[this->_sortedDim];
 }
 
-template <size_t D, typename ele>
-void KDNode<D, ele>::printNode() {
+template <size_t D, typename V, typename E>
+void KDNode<D, V, E>::printNode() {
     for( int i=0; i<D; i++ ) {
         std::cout<<this->atDim(i)<<" ";
     }

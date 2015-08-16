@@ -10,19 +10,19 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/vector.hpp>
 
-template <size_t D, typename ele>
+template <size_t D, typename V, typename E>
 class Point {
     private:
-        ele _element;
-        std::vector<double> _vec;
+        E _element;
+        std::vector<V> _vec;
     public:
         Point(){};
-        Point(std::vector<double> points, ele element);
-        double& operator[] (int x) {
+        Point(std::vector<V> points, E element);
+        V& operator[] (int x) {
             return _vec[x];
         }
-        ele getEle() { return this->_element; };
-        std::vector<double> getVec() { return this->_vec; };
+        E getEle() { return this->_element; };
+        std::vector<V> getVec() { return this->_vec; };
 
          //Everything serialization related
         friend class boost::serialization::access;
@@ -32,8 +32,8 @@ class Point {
         }
 };
 
-template <size_t D, typename ele>
-Point<D, ele>::Point(std::vector<double> vec, ele element) {
+template <size_t D, typename V, typename E>
+Point<D, V, E>::Point(std::vector<V> vec, E element) {
     this->_element = element;
     this->_vec = vec;
 }
