@@ -5,6 +5,7 @@
 #include <vector> 
 
 #include "KDTree.hpp"
+#include "Point.hpp"
 
 std::vector<double> parse_doubles(std::string str, int n) {
     std::vector<double> ret;
@@ -17,9 +18,9 @@ std::vector<double> parse_doubles(std::string str, int n) {
     return ret;
 }
 
-std::vector<std::vector<double> > get_points(std::string fname, int dim) {
+std::vector<std::vector<double> > get_points(std::string ifname, int dim) {
     std::string line;
-    std::ifstream myfile (fname);
+    std::ifstream myfile (ifname);
     std::vector<std::vector<double> > points;
     if (myfile.is_open()) {
         while (std::getline(myfile, line)) {
@@ -53,24 +54,35 @@ std::vector< std::vector<double> > genRandPoints(int n, int dim) {
 
 int main() {
 
-    //Test some stuff with the file
-    const std::string fname = "points.in";
-    std::vector<std::vector<double> > points = get_points(fname, 2);
-    std::vector<double> things{-3, 14};
-    //std::vector<double> more{5,6,2};
-    KDTree<2, int> kd(points);
-    kd.insert(things);
-    //kd.insert(more);
 
-    std::string ggname = "sometree.tree";
-    kd.write(ggname);
+    //Test some stuff with the file
+    const std::string ifname = "points.in";
+    std::vector<std::vector<double> > points = get_points(ifname, 2);
+    std::vector<double> things{-3, 14};
+    std::vector<double> more{5, 6};
+
+    //make a tree with the given points
+    KDTree<2, int> kd(points);
+
+    //add some more points
+    kd.insert(things);
+    kd.insert(more);
+
+    //save 
+    std::string ofname = "sometree.tree";
+    kd.write(ofname);
     KDTree<2, int> saved;
-    saved.read(ggname);
+    saved.read(ofname);
     saved.sayhi();
 
     //make some points
-    //const int dim = 8;
-    //int n = 1000;
-    //std::vector< std::vector<double> > pts = genRandPoints(n, dim);
-    //KDTree<dim, int> kdb(pts);
+    const int dim = 8;
+    int n = 1000;
+    std::vector< std::vector<double> > pts = genRandPoints(n, dim);
+    KDTree<dim, int> kdb(pts);
+
+    kdb.write(ofname);
+    KDTree<8, int> other;
+    other.read(ofname);
+    other.sayhi();
 }

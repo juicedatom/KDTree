@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include "KDNode.hpp"
+#include "Point.hpp"
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/binary_oarchive.hpp>
