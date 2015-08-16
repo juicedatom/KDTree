@@ -6,6 +6,10 @@
 #include <memory>
 #include <string>
 #include "KDNode.hpp"
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/binary_iarchive.hpp>
 
 template <size_t D, typename ele>
 class KDTree {
@@ -30,9 +34,18 @@ class KDTree {
         void read(std::string fname);
 
     private:
-        std::shared_ptr<KDNode<D, ele>> _head;
-        std::shared_ptr<KDNode<D, ele>> buildTree(std::vector< std::vector<double> > points, int depth, double last);
-        void traverse(std::shared_ptr<KDNode<D, ele>>, std::string gg);
+        boost::shared_ptr<KDNode<D, ele>> _head;
+        boost::shared_ptr<KDNode<D, ele>> buildTree(std::vector< std::vector<double> > points, int depth, double last);
+        void traverse(boost::shared_ptr<KDNode<D, ele>>, std::string gg);
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(
+                Archive & ar,
+                const unsigned int version
+                ) const {
+            ar & _head;
+        }
 };
 
 struct CompareByDim {
@@ -57,13 +70,13 @@ KDTree<D, ele>::KDTree() {}
 
 template <size_t D, typename ele>
 KDTree<D, ele>::KDTree(std::vector<std::vector<double> > points) {
-    std::shared_ptr<KDNode<D, ele>> _head = buildTree(points, 0, _head->atDim(0));
+    boost::shared_ptr<KDNode<D, ele>> _head = buildTree(points, 0, _head->atDim(0));
     this->_head = std::move(_head);
 }
 
 //TODO should i look at the last few nodes?
 template <size_t D, typename ele>
-std::shared_ptr<KDNode<D, ele>> KDTree<D, ele>::buildTree(std::vector< std::vector<double> > points, int depth, double last) {
+boost::shared_ptr<KDNode<D, ele>> KDTree<D, ele>::buildTree(std::vector< std::vector<double> > points, int depth, double last) {
     if (points.size() < 1) {
         return NULL;
     }
@@ -71,7 +84,7 @@ std::shared_ptr<KDNode<D, ele>> KDTree<D, ele>::buildTree(std::vector< std::vect
     int axis = depth % D;
     points = sortByDim(points, axis);
     int median = points.size() / 2;
-    std::shared_ptr<KDNode<D, ele>> node(new KDNode<D, ele>(points[median], 0, axis));
+    boost::shared_ptr<KDNode<D, ele>> node(new KDNode<D, ele>(points[median], 0, axis));
 
     std::vector< std::vector<double> > _left(points.begin(), points.begin() + median);
     std::vector< std::vector<double> > _right(points.begin() + median + 1, points.end());
@@ -87,8 +100,8 @@ void KDTree<D, ele>::insert(std::vector<double> vec) {
     //this is a thing
     int dim = 0;
     int left = 0;
-    std::shared_ptr<KDNode<D, ele> > cur = _head;
-    std::shared_ptr<KDNode<D, ele> > last = NULL;
+    boost::shared_ptr<KDNode<D, ele> > cur = _head;
+    boost::shared_ptr<KDNode<D, ele> > last = NULL;
     std::cout<<"hi!"<<std::endl;
     while(1) {
 
@@ -110,7 +123,7 @@ void KDTree<D, ele>::insert(std::vector<double> vec) {
         dim = (dim + 1) % D;
     }
     std::cout<<"inserting: "<<std::endl;
-    std::shared_ptr<KDNode<D, ele> > tmp(new KDNode<D, ele>(vec, 0, (dim-1)%D));
+    boost::shared_ptr<KDNode<D, ele> > tmp(new KDNode<D, ele>(vec, 0, (dim-1)%D));
     tmp->printNode();
     if (left) {
         last->_left = tmp;
@@ -123,14 +136,9 @@ template <size_t D, typename ele>
 void KDTree<D, ele>::sayhi() {
     this->traverse(this->_head, "");
 }
-/*
+
 template <size_t D, typename ele>
-void KDTree<D, ele>::save(std::string fname) {
-    
-}
-*/
-template <size_t D, typename ele>
-void KDTree<D, ele>::traverse(std::shared_ptr<KDNode<D, ele> > cur, std::string loc) {
+void KDTree<D, ele>::traverse(boost::shared_ptr<KDNode<D, ele> > cur, std::string loc) {
     if (cur == NULL) {
         return;
     }
@@ -145,4 +153,18 @@ size_t KDTree<D, ele>::dim() {
     return D;
 }
 
+template <size_t D, typename ele>
+void KDTree<D, ele>::write(std::string fname) {
+    std::ofstream ofs(fname);
+    boost::archive::binary_oarchive oa(ofs);
+    oa & this->_head;
+}
+
+template<size_t D, typename ele>
+void KDTree<D, ele>::read(std::string fname) {
+    std::ifstream ifs(fname);
+    boost::archive::binary_iarchive ia(ifs);
+    boost::shared_ptr<KDNode<D, ele>> hi;
+    ia & this->_head;
+}
 #endif

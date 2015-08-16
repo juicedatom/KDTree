@@ -56,16 +56,21 @@ int main() {
     //Test some stuff with the file
     const std::string fname = "points.in";
     std::vector<std::vector<double> > points = get_points(fname, 2);
-    //std::vector<double> things{3, 5, 1};
+    std::vector<double> things{-3, 14};
     //std::vector<double> more{5,6,2};
     KDTree<2, int> kd(points);
-    //kd.insert(things);
+    kd.insert(things);
     //kd.insert(more);
-    kd.sayhi();
+
+    std::string ggname = "sometree.tree";
+    kd.write(ggname);
+    KDTree<2, int> saved;
+    saved.read(ggname);
+    saved.sayhi();
 
     //make some points
-    const int dim = 8;
-    int n = 1000;
+    //const int dim = 8;
+    //int n = 1000;
     //std::vector< std::vector<double> > pts = genRandPoints(n, dim);
     //KDTree<dim, int> kdb(pts);
 }

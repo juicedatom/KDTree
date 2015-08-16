@@ -1,7 +1,15 @@
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+
 template <size_t D, typename ele>
 class KDNode {
     public:
         KDNode(std::vector<double> _vec, ele _ele, unsigned int _sortedDim);
+        KDNode<D, ele>(){};
         KDNode<D, ele> getRight();
         KDNode<D, ele> getLeft();
         KDNode<D, ele> getElement();
@@ -9,9 +17,18 @@ class KDNode {
         size_t getDim(){ return D; }
         unsigned int getSortedDim(){ return _sortedDim; }
         double atSortedDim();
-        std::shared_ptr<KDNode<D, ele>> _left;
-        std::shared_ptr<KDNode<D, ele>> _right;
+        boost::shared_ptr<KDNode<D, ele>> _left;
+        boost::shared_ptr<KDNode<D, ele>> _right;
         void printNode();
+
+        //Everything serialization related
+        friend class boost::serialization::access;
+
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)  {
+            ar & _vec & _ele & _left & _right & _sortedDim;
+        }
+
     private:
         ele _ele;
         std::vector<double> _vec;
