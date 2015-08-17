@@ -37,8 +37,8 @@ class KDTree {
         void write(std::string fname);
         void read(std::string fname);
         std::unique_ptr<std::multimap<V, Point<D, V, E>>> search(
-                const unsigned int k,
                 Point<D, V, E> p,
+                const unsigned int k,
                 const bool bbf = false,
                 const unsigned int maxlevel = 0);
 
@@ -46,9 +46,9 @@ class KDTree {
         boost::shared_ptr<KDNode<D,V,E>> _head;
         boost::shared_ptr<KDNode<D,V,E>> buildTree(std::vector< Point<D,V,E>> points, int depth);
         std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnTraverse(
-                const unsigned int k,
                 boost::shared_ptr<KDNode<D, V, E>> cur,
                 Point<D, V, E> p, std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
+                const unsigned int k,
                 unsigned int level,
                 const bool bbf = false,
                 const unsigned int maxlevel = 0);
@@ -177,10 +177,10 @@ void KDTree<D, V, E>::write(std::string fname) {
 
 template <size_t D, typename V, typename E>
 std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
-        const unsigned int k, 
         boost::shared_ptr<KDNode<D, V, E>> cur,
         Point<D, V, E> p,
         std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
+        unsigned int k,
         unsigned int level,
         const bool bbf,
         const unsigned int maxlevel) {
@@ -204,19 +204,20 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
     V axis = level % D;
     bool left = true;
     if (p[axis] < cur->atDim(axis)) {
-        pq = knnTraverse(k, cur->_left, p, std::move(pq), level++, bbf, maxlevel);
+        pq = knnTraverse(cur->_left, p, std::move(pq), k, level++, bbf, maxlevel);
     } else {
-        pq = knnTraverse(k, cur->_right, p, std::move(pq), level++, maxlevel, bbf);
+        pq = knnTraverse(cur->_right, p, std::move(pq), k, level++, bbf, maxlevel);
         left = false;
     }
 
     if (!bbf) { 
+        std::cout<<"check the other tree"<<std::endl;
         V best = pq->begin()->first;
         if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) < best) {
             if (left) {
-                pq = knnTraverse(k, cur->_right, p,  std::move(pq), level++, bbf, maxlevel);
+                pq = knnTraverse(cur->_right, p,  std::move(pq), k, level++, bbf, maxlevel);
             } else {
-                pq = knnTraverse(k, cur->_left, p, std::move(pq), level++, bbf, maxlevel);
+                pq = knnTraverse(cur->_left, p, std::move(pq), k, level++, bbf, maxlevel);
             }
         }
     }
@@ -226,14 +227,14 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
 
 template <size_t D, typename V, typename E>
 std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::search(
-        const unsigned int k,
         Point<D, V, E> p,
+        unsigned int k,
         const bool bbf,
         const unsigned int maxlevel) {
 
     boost::shared_ptr<KDNode<D, V, E>> cur = this->_head;
     std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = std::make_unique<std::multimap<V, Point<D, V, E>>>();
-    pq = this->knnTraverse(k, cur, p, std::move(pq), 0, bbf, maxlevel);
+    pq = this->knnTraverse(cur, p, std::move(pq), k, 0, bbf, maxlevel);
     return pq;
 }
 

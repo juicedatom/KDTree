@@ -88,14 +88,14 @@ int main() {
     saved.sayhi();
 
     //Look for a point in the saved dataset
-    //saved.search(2, a);
+    //saved.search(a, 2);
     //Point<2, double, std::string> nn = saved.search(2, a);
     //nn.sayhi();
     
 
     // Try a bigger dataset
     const int dim = 8;
-    int n = 100000;
+    int n = 1024;
     double max = 80;
     std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, max);
     KDTree<dim, double, std::string> kdb(pts);
@@ -104,11 +104,11 @@ int main() {
     KDTree<dim, double, std::string> other;
     other.read(ofname);
 
-    std::vector<double> hey {0,0,0,0,0,0,0,0};
+    std::vector<double> hey {40,40,40,40,40,40,40,40};
     Point<8, double, std::string> tofind(hey, "me!");
     std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
 
-    ret = other.search(4, tofind, true, 0);
+    ret = other.search(tofind, 1, true, 0);
 
     typedef std::multimap<double, Point<8, double, std::string>>::iterator it_type;
     for (it_type pos = ret->begin(); pos != ret->end(); pos++) {
@@ -119,7 +119,5 @@ int main() {
         }
         std::cout<<std::endl;
     }
-    //for( size_t i=0; i<ret->size()-1; i++) {
-        //ret->at(i).sayhi();
-    //}
+    //other.sayhi();
 }
