@@ -90,6 +90,7 @@ KDTree<D, V, E>::KDTree() {}
 template <size_t D, typename V, typename E>
 KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points) {
     boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0);
+    this->_head = _head;
 }
 
 template <size_t D, typename V, typename E>
@@ -190,6 +191,7 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
     bool levelmaxReached = (maxlevel !=0) && (level > maxlevel);
 
     if (levelmaxReached || cur == NULL) {
+        std::cout<<"here"<<std::endl;
         return pq;
     }
 

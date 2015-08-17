@@ -80,7 +80,7 @@ int main() {
     //}
 
     //save 
-    //std::string ofname = "sometree.tree";
+    std::string ofname = "sometree.tree";
     //kd.write(ofname);
     //KDTree<2, double, std::string> saved;
     //std::cout<<"hi!"<<std::endl;
@@ -94,38 +94,38 @@ int main() {
     
 
     // Try a bigger dataset
-    //const int dim = 8;
-    //int n = std::pow(2, 10);
-    //double max = 80;
+    const int dim = 8;
+    int n = std::pow(2, 10);
+    double max = 80;
 
-    //std::cout<<"generating points..."<<std::endl;
-    //std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, max);
+    std::cout<<"generating points..."<<std::endl;
+    std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, max);
 
-    //std::cout<<"creating tree..."<<std::endl;
-    //KDTree<dim, double, std::string> kdb(pts);
+    std::cout<<"creating tree..."<<std::endl;
+    KDTree<dim, double, std::string> kdb(pts);
 
-    //std::cout<<"writing tree to a file..."<<std::endl;
-    //kdb.write(ofname);
+    std::cout<<"writing tree to a file..."<<std::endl;
+    kdb.write(ofname);
 
-    //std::cout<<"reading tree from file..."<<std::endl;
-    //KDTree<dim, double, std::string> other;
-    //other.read(ofname);
+    std::cout<<"reading tree from file..."<<std::endl;
+    KDTree<dim, double, std::string> other;
+    other.read(ofname);
 
-    //std::cout<<"looking for things..."<<std::endl;
-    //std::vector<double> hey {40,40,40,40,40,40,40,40};
-    //Point<8, double, std::string> tofind(hey, "me!");
-    //std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
+    std::cout<<"looking for things..."<<std::endl;
+    std::vector<double> hey {40,40,40,40,40,40,40,40};
+    Point<8, double, std::string> tofind(hey, "me!");
+    std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
 
-    //ret = other.search(tofind, 1, true, 0);
+    ret = other.search(tofind, 1, true, 0);
 
-    //typedef std::multimap<double, Point<8, double, std::string>>::iterator it_type;
-    //for (it_type pos = ret->begin(); pos != ret->end(); pos++) {
-        //std::cout<<pos->first<<std::endl;
-        //Point<8, double, std::string> gg = pos->second;
-        //for (int i=0; i<8; i++) {
-            //std::cout<<gg[i]<<" ";
-        //}
-        //std::cout<<std::endl;
-    //}
-    //other.sayhi();
+    typedef std::multimap<double, Point<8, double, std::string>>::iterator it_type;
+    for (it_type pos = ret->begin(); pos != ret->end(); pos++) {
+        std::cout<<pos->first<<std::endl;
+        Point<8, double, std::string> gg = pos->second;
+        for (int i=0; i<8; i++) {
+            std::cout<<gg[i]<<" ";
+        }
+        std::cout<<std::endl;
+    }
+    other.sayhi();
 }
