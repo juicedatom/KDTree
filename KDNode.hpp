@@ -9,6 +9,7 @@
 #include <boost/serialization/vector.hpp>
 
 #include "Point.hpp"
+#include "memoryHelper.hpp"
 
 template <size_t D, typename V, typename E>
 class KDNode {

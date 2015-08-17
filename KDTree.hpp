@@ -8,12 +8,14 @@
 #include <cmath>
 #include <map>
 #include <exception>
+#include <boost/make_shared.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
 
 #include "KDNode.hpp"
+#include "memoryHelper.hpp"
 #include "Point.hpp"
 
 enum class SplitMethod {
@@ -174,7 +176,7 @@ boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(
     points = sortByDim(points, axis);
     int split = getSplit(points, sm, axis);
 
-    boost::shared_ptr<KDNode<D, V, E>> node(new KDNode<D, V, E>(points[split]));
+    boost::shared_ptr<KDNode<D, V, E>> node = boost::make_shared<KDNode<D, V, E>>(points[split]);
     std::vector<Point<D, V, E>> _left(points.begin(), points.begin() + split);
     std::vector<Point<D, V, E>> _right(points.begin() + split + 1, points.end());
 
@@ -207,7 +209,7 @@ void KDTree<D, V, E>::insert(Point<D, V, E> p) {
         }
         dim = (dim + 1) % D;
     }
-    boost::shared_ptr<KDNode<D, V, E> > tmp(new KDNode<D, V, E>(p));
+    boost::shared_ptr<KDNode<D, V, E>> tmp = boost::make_shared<KDNode<D, V, E>>(p);
     if (left) {
         last->setLeft(tmp);
     } else {
@@ -311,7 +313,7 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::search(
         const unsigned int maxlevel) {
 
     boost::shared_ptr<KDNode<D, V, E>> cur = this->_head;
-    std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = std::make_unique<std::multimap<V, Point<D, V, E>>>();
+    std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = make_unique<std::multimap<V, Point<D, V, E>>>();
     pq = this->knnTraverse(cur, p, std::move(pq), k, 0, bbf, maxlevel);
     return pq;
 }
