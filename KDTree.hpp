@@ -90,10 +90,8 @@ KDTree<D, V, E>::KDTree() {}
 template <size_t D, typename V, typename E>
 KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points) {
     boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0);
-    this->_head = std::move(_head);
 }
 
-//TODO should i look at the last few nodes?
 template <size_t D, typename V, typename E>
 boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(std::vector<Point<D, V, E>> points, int depth) {
     if (points.size() < 1) {
@@ -102,11 +100,13 @@ boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(std::vector<Point<
 
     int axis = depth % D;
     points = sortByDim(points, axis);
-    int median = points.size() / 2;
-    boost::shared_ptr<KDNode<D, V, E>> node(new KDNode<D, V, E>(points[median], axis));
 
-    std::vector<Point<D, V, E>> _left(points.begin(), points.begin() + median);
-    std::vector<Point<D, V, E>> _right(points.begin() + median + 1, points.end());
+    //median split
+    int split = points.size() / 2;
+
+    boost::shared_ptr<KDNode<D, V, E>> node(new KDNode<D, V, E>(points[split], axis));
+    std::vector<Point<D, V, E>> _left(points.begin(), points.begin() + split);
+    std::vector<Point<D, V, E>> _right(points.begin() + split + 1, points.end());
 
     depth++;
     node->_left = buildTree(_left, depth);
@@ -119,7 +119,7 @@ void KDTree<D, V, E>::insert(Point<D, V, E> p) {
     //this is a thing
     int dim = 0;
     int left = 0;
-    boost::shared_ptr<KDNode<D, V, E> > cur = _head;
+    boost::shared_ptr<KDNode<D, V, E> > cur = this->_head;
     boost::shared_ptr<KDNode<D, V, E> > last = NULL;
     while(1) {
 
