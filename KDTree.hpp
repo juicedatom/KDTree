@@ -36,12 +36,23 @@ class KDTree {
         void insert(Point<D, V, E> point);
         void write(std::string fname);
         void read(std::string fname);
-        std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnSearch(const unsigned int k, Point<D, V, E> p);
+        std::unique_ptr<std::multimap<V, Point<D, V, E>>> search(
+                const unsigned int k,
+                Point<D, V, E> p,
+                const bool bbf = false,
+                const unsigned int maxlevel = 0);
 
     private:
         boost::shared_ptr<KDNode<D,V,E>> _head;
         boost::shared_ptr<KDNode<D,V,E>> buildTree(std::vector< Point<D,V,E>> points, int depth);
-        std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnTraverse(const unsigned int k, boost::shared_ptr<KDNode<D, V, E>> cur, Point<D, V, E> p, std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq, int level);
+        std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnTraverse(
+                const unsigned int k,
+                boost::shared_ptr<KDNode<D, V, E>> cur,
+                Point<D, V, E> p, std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
+                unsigned int level,
+                const bool bbf = false,
+                const unsigned int maxlevel = 0);
+
         void traverse(boost::shared_ptr<KDNode<D, V, E>>, std::string gg);
         friend class boost::serialization::access;
 
@@ -170,52 +181,59 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
         boost::shared_ptr<KDNode<D, V, E>> cur,
         Point<D, V, E> p,
         std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
-        int level)
-{
+        unsigned int level,
+        const bool bbf,
+        const unsigned int maxlevel) {
 
     std::cout<<"hellomynameiselderprice"<<std::endl;
-    if (cur == NULL) {
+
+    bool levelmaxReached = (maxlevel !=0) && (level > maxlevel);
+
+    if (levelmaxReached || cur == NULL) {
         return pq;
     }
 
     V distance = cur->getPoint().eucl(p);
-    if (distance == 0) {
-        exit(0);
-    }
     pq->insert(std::pair<V, Point<D, V, E>>(distance, cur->getPoint()));
 
     if (pq->size() > k) {
-        std::cout<<"erasing!";
+        std::cout<<"erasing!"<<std::endl;
         pq->erase(std::prev(pq->end()));
     }
 
     V axis = level % D;
     bool left = true;
     if (p[axis] < cur->atDim(axis)) {
-        pq = knnTraverse(k, cur->_left, p, std::move(pq), level++);
+        pq = knnTraverse(k, cur->_left, p, std::move(pq), level++, bbf, maxlevel);
     } else {
-        pq = knnTraverse(k, cur->_right, p, std::move(pq), level++);
+        pq = knnTraverse(k, cur->_right, p, std::move(pq), level++, maxlevel, bbf);
         left = false;
     }
 
-    V best = pq->begin()->first;
-    if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) < best) {
-        if (left) {
-            pq = knnTraverse(k, cur->_right, p,  std::move(pq), level++);
-        } else {
-            pq = knnTraverse(k, cur->_left, p, std::move(pq), level++);
+    if (!bbf) { 
+        V best = pq->begin()->first;
+        if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) < best) {
+            if (left) {
+                pq = knnTraverse(k, cur->_right, p,  std::move(pq), level++, bbf, maxlevel);
+            } else {
+                pq = knnTraverse(k, cur->_left, p, std::move(pq), level++, bbf, maxlevel);
+            }
         }
     }
-    return pq;
+
+   return pq;
 }
 
 template <size_t D, typename V, typename E>
-std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnSearch(
-        const unsigned int k, Point<D, V, E> p) {
+std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::search(
+        const unsigned int k,
+        Point<D, V, E> p,
+        const bool bbf,
+        const unsigned int maxlevel) {
 
     boost::shared_ptr<KDNode<D, V, E>> cur = this->_head;
     std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = std::make_unique<std::multimap<V, Point<D, V, E>>>();
-    pq = this->knnTraverse(k, cur, p, std::move(pq), 0);
+    pq = this->knnTraverse(k, cur, p, std::move(pq), 0, bbf, maxlevel);
     return pq;
 }
 
