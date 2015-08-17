@@ -6,6 +6,7 @@
 
 #include "KDTree.hpp"
 #include "Point.hpp"
+#include "unitTests.h"
 
 std::vector<double> parse_doubles(std::string str, int n) {
     std::vector<double> ret;
@@ -18,7 +19,7 @@ std::vector<double> parse_doubles(std::string str, int n) {
     return ret;
 }
 
-template< size_t D >
+template <size_t D>
 std::vector<Point<D, double, std::string>> get_points(std::string ifname) {
     std::string line;
     std::ifstream myfile (ifname);
@@ -58,6 +59,14 @@ std::vector< Point<D, double, std::string> > genRandStrPoints(int n, double rang
 
 int main() {
 
+    //Unit test stuff
+    // if command line contains "-selftest" then this is the post build check
+    // => the output must be in the compiler error format.
+    CppUnit::TextUi::TestRunner runner;
+    runner.addTest( suite() );   // Add the top suite to the test runner
+
+    // Run the test.
+    runner.run("");
 
     //Test some stuff with the file
     const std::string ifname = "points.in";
