@@ -95,15 +95,23 @@ int main() {
 
     // Try a bigger dataset
     const int dim = 8;
-    int n = 1024;
+    int n = std::pow(2, 14);
     double max = 80;
+
+    std::cout<<"generating points..."<<std::endl;
     std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, max);
+
+    std::cout<<"creating tree..."<<std::endl;
     KDTree<dim, double, std::string> kdb(pts);
 
+    std::cout<<"writing tree to a file..."<<std::endl;
     kdb.write(ofname);
+
+    std::cout<<"reading tree from file..."<<std::endl;
     KDTree<dim, double, std::string> other;
     other.read(ofname);
 
+    std::cout<<"looking for things..."<<std::endl;
     std::vector<double> hey {40,40,40,40,40,40,40,40};
     Point<8, double, std::string> tofind(hey, "me!");
     std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
