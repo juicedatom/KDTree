@@ -96,14 +96,15 @@ int main() {
     // Try a bigger dataset
     const int dim = 8;
     int n = 1000;
-    std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, 100);
+    double max = 80;
+    std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, max);
     KDTree<dim, double, std::string> kdb(pts);
 
     kdb.write(ofname);
     KDTree<dim, double, std::string> other;
     other.read(ofname);
 
-    std::vector<double> hey {10,20,30,40,50,60,70,80};
+    std::vector<double> hey {0, 10, 20, 30, 40, 50, 60, 70};
     Point<8, double, std::string> tofind(hey, "me!");
     std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
 
@@ -118,4 +119,7 @@ int main() {
         }
         std::cout<<std::endl;
     }
+    //for( size_t i=0; i<ret->size()-1; i++) {
+        //ret->at(i).sayhi();
+    //}
 }
