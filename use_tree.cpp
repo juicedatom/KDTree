@@ -88,7 +88,8 @@ int main() {
     saved.sayhi();
 
     //Look for a point in the saved dataset
-    //Point<2, double, std::string> nn = saved.nnSearch(a);
+    //saved.knnSearch(2, a);
+    //Point<2, double, std::string> nn = saved.knnSearch(2, a);
     //nn.sayhi();
     
 
@@ -101,9 +102,20 @@ int main() {
     kdb.write(ofname);
     KDTree<dim, double, std::string> other;
     other.read(ofname);
-    other.sayhi();
 
     std::vector<double> hey {10,20,30,40,50,60,70,80};
     Point<8, double, std::string> tofind(hey, "me!");
-    Point<8, double, std::string> ret = other.nnSearch(tofind);
+    std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
+
+    ret = other.knnSearch(4, tofind);
+
+    typedef std::multimap<double, Point<8, double, std::string>>::iterator it_type;
+    for (it_type pos = ret->begin(); pos != ret->end(); pos++) {
+        std::cout<<pos->first<<std::endl;
+        Point<8, double, std::string> gg = pos->second;
+        for (int i=0; i<8; i++) {
+            std::cout<<gg[i]<<" ";
+        }
+        std::cout<<std::endl;
+    }
 }

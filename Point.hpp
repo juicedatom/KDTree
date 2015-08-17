@@ -11,7 +11,6 @@
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 
-
 template <size_t D, typename V, typename E>
 class Point {
     private:
@@ -45,7 +44,7 @@ Point<D, V, E>::Point(std::vector<V> vec, E element) {
 template <size_t D, typename V, typename E>
 V Point<D, V, E>::eucl(Point<D, V, E> p) {
     V sum = 0;
-    for (int i=0; i<D; i++) {
+    for (size_t i=0; i<D; i++) {
         V a = p[i] - _vec[i];
         sum += a * a;
     }
@@ -54,7 +53,7 @@ V Point<D, V, E>::eucl(Point<D, V, E> p) {
 
 template <size_t D, typename V, typename E>
 void Point<D, V, E>::sayhi() {
-    for(int i=0; i<D; i++) {
+    for(size_t i=0; i<D; i++) {
         std::cout<<this->_vec[i]<<" ";
     }
 }

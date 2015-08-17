@@ -1,3 +1,6 @@
+#ifndef KDNODE_H
+#define KDNODE_H
+
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/version.hpp>
@@ -60,8 +63,10 @@ V KDNode<D, V, E>::atSortedDim() {
 
 template <size_t D, typename V, typename E>
 void KDNode<D, V, E>::printNode() {
-    for( int i=0; i<D; i++ ) {
+    for( unsigned int i=0; i<D; i++ ) {
         std::cout<<this->atDim(i)<<" ";
     }
     std::cout<<std::endl;
 }
+
+#endif

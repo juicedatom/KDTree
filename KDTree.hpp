@@ -6,12 +6,14 @@
 #include <memory>
 #include <string>
 #include <cmath>
-#include "KDNode.hpp"
-#include "Point.hpp"
+#include <map>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+
+#include "KDNode.hpp"
+#include "Point.hpp"
 
 template <size_t D, typename V, typename E>
 class KDTree {
@@ -34,12 +36,12 @@ class KDTree {
         void insert(Point<D, V, E> point);
         void write(std::string fname);
         void read(std::string fname);
-        Point<D, V, E> nnSearch(Point<D, V, E> p);
+        std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnSearch(const unsigned int k, Point<D, V, E> p);
 
     private:
         boost::shared_ptr<KDNode<D,V,E>> _head;
         boost::shared_ptr<KDNode<D,V,E>> buildTree(std::vector< Point<D,V,E>> points, int depth);
-        Point<D, V, E> nnTraverse(boost::shared_ptr<KDNode<D, V, E>> cur, Point<D, V, E> p, V best, Point<D, V, E> ret, int level);
+        std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnTraverse(const unsigned int k, boost::shared_ptr<KDNode<D, V, E>> cur, Point<D, V, E> p, std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq, int level);
         void traverse(boost::shared_ptr<KDNode<D, V, E>>, std::string gg);
         friend class boost::serialization::access;
 
@@ -161,46 +163,60 @@ void KDTree<D, V, E>::write(std::string fname) {
     oa & this->_head;
 }
 
+
 template <size_t D, typename V, typename E>
-Point<D, V, E> KDTree<D, V, E>::nnTraverse(boost::shared_ptr<KDNode<D, V, E>> cur, Point<D, V, E> p, V best, Point<D, V, E> ret, int level) {
+std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
+        const unsigned int k, 
+        boost::shared_ptr<KDNode<D, V, E>> cur,
+        Point<D, V, E> p,
+        std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
+        int level)
+{
+
     std::cout<<"hellomynameiselderprice"<<std::endl;
     if (cur == NULL) {
-        return ret;
+        return pq;
     }
 
     V distance = cur->getPoint().eucl(p);
+    if (distance == 0) {
+        exit(0);
+    }
+    pq->insert(std::pair<V, Point<D, V, E>>(distance, cur->getPoint()));
 
-    if (distance < best) {
-        best = distance;
-        ret = cur->getPoint();
+    if (pq->size() > k) {
+        std::cout<<"erasing!";
+        pq->erase(std::prev(pq->end()));
     }
 
-    V axis = cur->getSortedDim(); 
+    V axis = level % D;
     bool left = true;
     if (p[axis] < cur->atDim(axis)) {
-        ret = nnTraverse(cur->_left, p, best, ret, level++);
+        pq = knnTraverse(k, cur->_left, p, std::move(pq), level++);
     } else {
-        ret = nnTraverse(cur->_right, p, best, ret, level++);
+        pq = knnTraverse(k, cur->_right, p, std::move(pq), level++);
         left = false;
     }
 
-    best = p.eucl(ret);
-
-    if (std::abs(cur->getPoint()[axis] - p[axis]) < best) {
+    V best = pq->begin()->first;
+    if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) < best) {
         if (left) {
-            ret = nnTraverse(cur->_right, p, best, ret, level++);
+            pq = knnTraverse(k, cur->_right, p,  std::move(pq), level++);
         } else {
-            ret = nnTraverse(cur->_left, p, best, ret, level++);
+            pq = knnTraverse(k, cur->_left, p, std::move(pq), level++);
         }
     }
-    return ret;
+    return pq;
 }
 
 template <size_t D, typename V, typename E>
-Point<D, V, E> KDTree<D, V, E>::nnSearch(Point<D, V, E> p) {
+std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnSearch(
+        const unsigned int k, Point<D, V, E> p) {
+
     boost::shared_ptr<KDNode<D, V, E>> cur = this->_head;
-    V best = p.eucl(cur->getPoint());
-    return this->nnTraverse(cur, p, best, cur->getPoint(), 0);
+    std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = std::make_unique<std::multimap<V, Point<D, V, E>>>();
+    pq = this->knnTraverse(k, cur, p, std::move(pq), 0);
+    return pq;
 }
 
 template <size_t D, typename V, typename E>
