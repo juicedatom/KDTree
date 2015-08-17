@@ -102,7 +102,7 @@ int main() {
     std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, max);
 
     std::cout<<"creating tree..."<<std::endl;
-    KDTree<dim, double, std::string> kdb(pts);
+    KDTree<dim, double, std::string> kdb(pts, SplitMethod::MEAN);
 
     std::cout<<"writing tree to a file..."<<std::endl;
     kdb.write(ofname);
@@ -116,7 +116,7 @@ int main() {
     Point<8, double, std::string> tofind(hey, "me!");
     std::unique_ptr<std::multimap<double, Point<8, double, std::string>>> ret;
 
-    ret = other.search(tofind, 1, true, 0);
+    ret = other.search(tofind, 1);
 
     typedef std::multimap<double, Point<8, double, std::string>>::iterator it_type;
     for (it_type pos = ret->begin(); pos != ret->end(); pos++) {
@@ -127,5 +127,5 @@ int main() {
         }
         std::cout<<std::endl;
     }
-    other.sayhi();
+    //other.sayhi();
 }

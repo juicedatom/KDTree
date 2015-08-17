@@ -13,30 +13,30 @@
 template <size_t D, typename V, typename E>
 class KDNode {
     public:
-        KDNode(Point<D, V, E> p, unsigned int _sortedDim);
+        KDNode(Point<D, V, E> p);
         KDNode<D, V, E>(){};
-        KDNode<D, V, E> getRight();
-        KDNode<D, V, E> getLeft();
+
+        boost::shared_ptr<KDNode<D, V, E>> getLeft();
+        boost::shared_ptr<KDNode<D, V, E>> getRight();
+
+        void setLeft(boost::shared_ptr<KDNode<D, V, E>> node);
+        void setRight(boost::shared_ptr<KDNode<D, V, E>> node);
+
         Point<D, V, E> getPoint() { return this->_point; };
-
-        V& operator[] (int x) {
-            return this->_point[x];
-        }
-
         V atDim(int dim);
         size_t getDim(){ return D; }
-        unsigned int getSortedDim(){ return this->_sortedDim; }
-        V atSortedDim();
+
         boost::shared_ptr<KDNode<D, V, E>> _left;
         boost::shared_ptr<KDNode<D, V, E>> _right;
-        void printNode();
 
+        void printNode();
+        V& operator[] (int x);
         //Everything serialization related
         friend class boost::serialization::access;
 
         template <class Archive>
         void serialize(Archive & ar, const unsigned int version)  {
-            ar & _point & _left & _right & _sortedDim;
+            ar & _point & _left & _right;
         }
 
     private:
@@ -44,21 +44,35 @@ class KDNode {
         Point<D, V, E> _point;
 };
 
+template <size_t D, typename V, typename E>
+boost::shared_ptr<KDNode<D, V, E>> KDNode<D, V, E>::getLeft() {
+    return this->_left;
+}
 
 template <size_t D, typename V, typename E>
-KDNode<D, V, E>::KDNode(Point<D, V, E> p, unsigned int _sortedDim) {
-    this->_point = p;
-    this->_sortedDim = _sortedDim;
+boost::shared_ptr<KDNode<D, V, E>> KDNode<D, V, E>::getRight() {
+    return this->_right;
 }
+
+template <size_t D, typename V, typename E>
+void KDNode<D, V, E>::setLeft(boost::shared_ptr<KDNode<D, V, E>> node) {
+    this->_left = node;
+}
+
+template <size_t D, typename V, typename E>
+void KDNode<D, V, E>::setRight(boost::shared_ptr<KDNode<D, V, E>> node) {
+    this->_right = node;
+}
+
+template <size_t D, typename V, typename E>
+KDNode<D, V, E>::KDNode(Point<D, V, E> p) {
+    this->_point = p;
+}
+
 
 template <size_t D, typename V, typename E>
 V KDNode<D, V, E>::atDim(int dim) {
     return this->_point[dim];
-}
-
-template <size_t D, typename V, typename E>
-V KDNode<D, V, E>::atSortedDim() {
-    return this->_point[this->_sortedDim];
 }
 
 template <size_t D, typename V, typename E>
@@ -69,4 +83,8 @@ void KDNode<D, V, E>::printNode() {
     std::cout<<std::endl;
 }
 
+template <size_t D, typename V, typename E>
+V& KDNode<D, V, E>::operator[] (int x) {
+    return this->_point[x];
+}
 #endif
