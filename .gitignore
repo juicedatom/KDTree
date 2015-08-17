@@ -1,3 +1,5 @@
 *.in
 *.tree
 *.o
+.release_time
+TreeTest
