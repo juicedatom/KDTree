@@ -43,12 +43,12 @@ public:
 };
 
 template <size_t D>
-std::vector< Point<D, double, std::string> > genRandStrPoints(int n) {
+std::vector< Point<D, double, std::string> > genRandStrPoints(int n, double range=1.0) {
     std::vector<double> tmp(D);
     std::vector<Point<D, double, std::string>> ret;
     
     for (int i=0; i<n; i++) {
-        std::generate_n(tmp.begin(), D, gen_rand());
+        std::generate_n(tmp.begin(), D, gen_rand(range));
         Point<D, double, std::string> p(tmp, "");
         ret.push_back(p);
     }
@@ -65,11 +65,14 @@ int main() {
     KDTree<2, double, std::string> kd(points);
 
     std::vector<double> things{85, 97};
-    std::vector<double> more{5, 6};
+    std::vector<double> more{-1, 10};
+
+    Point<2, double, std::string> a(more, "");
+    Point<2, double, std::string> b(things, "");
 
     //add some more points
     kd.insert(Point<2, double, std::string>(things, ""));
-    kd.sayhi();
+    //kd.sayhi();
 
     Point<2, double, int> p(things, 0);
     for (int i = 0; i<2; i++ ) {
@@ -79,16 +82,28 @@ int main() {
     //save 
     std::string ofname = "sometree.tree";
     kd.write(ofname);
-    KDTree<2, double, int> saved;
+    KDTree<2, double, std::string> saved;
+    std::cout<<"hi!"<<std::endl;
+    saved.read(ofname);
+    saved.sayhi();
+
+    //Look for a point in the saved dataset
+    //Point<2, double, std::string> nn = saved.nnSearch(a);
+    //nn.sayhi();
+    
 
     // Try a bigger dataset
     const int dim = 8;
     int n = 1000;
-    std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n);
+    std::vector<Point<dim, double, std::string>> pts = genRandStrPoints<dim>(n, 100);
     KDTree<dim, double, std::string> kdb(pts);
 
     kdb.write(ofname);
     KDTree<dim, double, std::string> other;
     other.read(ofname);
     other.sayhi();
+
+    std::vector<double> hey {10,20,30,40,50,60,70,80};
+    Point<8, double, std::string> tofind(hey, "me!");
+    Point<8, double, std::string> ret = other.nnSearch(tofind);
 }

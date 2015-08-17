@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <cmath>
 #include "KDNode.hpp"
 #include "Point.hpp"
 #include <boost/serialization/shared_ptr.hpp>
@@ -33,10 +34,12 @@ class KDTree {
         void insert(Point<D, V, E> point);
         void write(std::string fname);
         void read(std::string fname);
+        Point<D, V, E> nnSearch(Point<D, V, E> p);
 
     private:
         boost::shared_ptr<KDNode<D,V,E>> _head;
         boost::shared_ptr<KDNode<D,V,E>> buildTree(std::vector< Point<D,V,E>> points, int depth);
+        Point<D, V, E> nnTraverse(boost::shared_ptr<KDNode<D, V, E>> cur, Point<D, V, E> p, V best, Point<D, V, E> ret, int level);
         void traverse(boost::shared_ptr<KDNode<D, V, E>>, std::string gg);
         friend class boost::serialization::access;
 
@@ -105,7 +108,6 @@ void KDTree<D, V, E>::insert(Point<D, V, E> p) {
     int left = 0;
     boost::shared_ptr<KDNode<D, V, E> > cur = _head;
     boost::shared_ptr<KDNode<D, V, E> > last = NULL;
-    std::cout<<"hi!"<<std::endl;
     while(1) {
 
         if (cur == NULL) {
@@ -113,19 +115,15 @@ void KDTree<D, V, E>::insert(Point<D, V, E> p) {
         }
         
         last = cur;
-        std::cout<<"comparing "<<p[dim]<<" and "<<cur->atDim(dim)<<std::endl;
         if (p[dim] < cur->atDim(dim)) {
             cur = cur->_left;
             left = 1;
-            std::cout<<"less!"<<std::endl;
         } else {
             cur = cur->_right;
             left = 0;
-            std::cout<<"more!"<<std::endl;
         }
         dim = (dim + 1) % D;
     }
-    std::cout<<"inserting: "<<std::endl;
     boost::shared_ptr<KDNode<D, V, E> > tmp(new KDNode<D, V, E>(p, (dim-1)%D));
     tmp->printNode();
     if (left) {
@@ -161,6 +159,48 @@ void KDTree<D, V, E>::write(std::string fname) {
     std::ofstream ofs(fname);
     boost::archive::binary_oarchive oa(ofs);
     oa & this->_head;
+}
+
+template <size_t D, typename V, typename E>
+Point<D, V, E> KDTree<D, V, E>::nnTraverse(boost::shared_ptr<KDNode<D, V, E>> cur, Point<D, V, E> p, V best, Point<D, V, E> ret, int level) {
+    std::cout<<"hellomynameiselderprice"<<std::endl;
+    if (cur == NULL) {
+        return ret;
+    }
+
+    V distance = cur->getPoint().eucl(p);
+
+    if (distance < best) {
+        best = distance;
+        ret = cur->getPoint();
+    }
+
+    V axis = cur->getSortedDim(); 
+    bool left = true;
+    if (p[axis] < cur->atDim(axis)) {
+        ret = nnTraverse(cur->_left, p, best, ret, level++);
+    } else {
+        ret = nnTraverse(cur->_right, p, best, ret, level++);
+        left = false;
+    }
+
+    best = p.eucl(ret);
+
+    if (std::abs(cur->getPoint()[axis] - p[axis]) < best) {
+        if (left) {
+            ret = nnTraverse(cur->_right, p, best, ret, level++);
+        } else {
+            ret = nnTraverse(cur->_left, p, best, ret, level++);
+        }
+    }
+    return ret;
+}
+
+template <size_t D, typename V, typename E>
+Point<D, V, E> KDTree<D, V, E>::nnSearch(Point<D, V, E> p) {
+    boost::shared_ptr<KDNode<D, V, E>> cur = this->_head;
+    V best = p.eucl(cur->getPoint());
+    return this->nnTraverse(cur, p, best, cur->getPoint(), 0);
 }
 
 template <size_t D, typename V, typename E>

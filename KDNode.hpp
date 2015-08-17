@@ -14,6 +14,7 @@ class KDNode {
         KDNode<D, V, E>(){};
         KDNode<D, V, E> getRight();
         KDNode<D, V, E> getLeft();
+        Point<D, V, E> getPoint() { return this->_point; };
 
         V& operator[] (int x) {
             return this->_point[x];
@@ -21,7 +22,7 @@ class KDNode {
 
         V atDim(int dim);
         size_t getDim(){ return D; }
-        unsigned int getSortedDim(){ return _sortedDim; }
+        unsigned int getSortedDim(){ return this->_sortedDim; }
         V atSortedDim();
         boost::shared_ptr<KDNode<D, V, E>> _left;
         boost::shared_ptr<KDNode<D, V, E>> _right;
