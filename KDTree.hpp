@@ -18,6 +18,8 @@
 #include "memoryHelper.hpp"
 #include "Point.hpp"
 
+#ifndef KDTREE_HELPERS
+#define KDTREE_HELPERS
 enum class SplitMethod {
     MEDIAN,
     MEAN
@@ -27,13 +29,14 @@ class EmptyPointListException: public std::exception {
     virtual const char* what() const throw() {
         return "Empty List of Points, Nothing to do!";
     }
-} emptyPointListException;
+};
 
 class InvalidSplitMethodException: public std::exception {
     virtual const char* what() const throw() {
         return "Invalid Split Method";
     }
-} invalidSplitMethodException;
+};
+#endif
 
 template <size_t D, typename V, typename E>
 class KDTree {
@@ -137,7 +140,8 @@ template <size_t D, typename V, typename E>
 KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points,
         SplitMethod sm) {
     if (points.size() == 0) {
-        throw emptyPointListException;
+        EmptyPointListException a;
+        throw a;
     }
 
     boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0, sm);
@@ -156,7 +160,8 @@ int getSplit(std::vector<Point<D, V, E>> points, SplitMethod sm, int axis) {
             split = meanIndexByDim(points, axis); 
             break;
         default:
-            throw invalidSplitMethodException;
+            InvalidSplitMethodException ex;
+            throw ex;
             break;
     }
 
