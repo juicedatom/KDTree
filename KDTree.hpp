@@ -21,8 +21,7 @@
 #ifndef KDTREE_HELPERS
 #define KDTREE_HELPERS
 enum class SplitMethod {
-    MEDIAN,
-    MEAN
+    MEDIAN
 };
 
 class EmptyPointListException: public std::exception {
@@ -62,6 +61,7 @@ class KDTree {
                 const bool bbf = false,
                 const unsigned int maxlevel = 0);
 
+        bool contains(Point<D, V, E> p);
     private:
         boost::shared_ptr<KDNode<D,V,E>> _head;
         size_t _size;
@@ -69,7 +69,8 @@ class KDTree {
         boost::shared_ptr<KDNode<D,V,E>> buildTree(
                 std::vector< Point<D,V,E>> points,
                 const unsigned int depth,
-                SplitMethod sm);
+                SplitMethod sm,
+                V lastV);
 
         std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnTraverse(
                 boost::shared_ptr<KDNode<D, V, E>> cur,
@@ -90,6 +91,11 @@ class KDTree {
             ar & _head;
         }
 };
+
+template <size_t D, typename V, typename E>
+KDTree<D, V, E>::KDTree() {
+    this->_size = 0;
+}
 
 template <size_t D, typename V, typename E>
 struct CompareByDim {
@@ -113,29 +119,6 @@ std::vector< Point<D, V, E> > sortByDim(
     return points;
 }
 
-template <size_t D, typename V, typename E>
-int meanIndexByDim(std::vector<Point<D, V, E> > points, int d) {
-
-    V sum = 0;
-    for (size_t i=0; i <points.size(); i++) {
-        sum += points[i][d];
-    }
-    
-    V mean = sum / points.size();
-
-    //assume sorted
-    for (size_t i=0; i<points.size(); i++) {
-        if (points[i][d] - mean >= 0) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-template <size_t D, typename V, typename E>
-KDTree<D, V, E>::KDTree() {
-    this->_size = 0;
-}
 
 template <size_t D, typename V, typename E>
 KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points,
@@ -145,7 +128,7 @@ KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points,
         throw a;
     }
 
-    boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0, sm);
+    boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0, sm, 0);
     this->_size = points.size();
     this->_head = _head;
 }
@@ -156,9 +139,6 @@ int getSplit(std::vector<Point<D, V, E>> points, SplitMethod sm, int axis) {
     switch (sm) {
         case SplitMethod::MEDIAN:
             split = points.size() / 2;
-            break;
-        case SplitMethod::MEAN:
-            split = meanIndexByDim(points, axis); 
             break;
         default:
             InvalidSplitMethodException ex;
@@ -172,7 +152,8 @@ template <size_t D, typename V, typename E>
 boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(
         std::vector<Point<D, V, E>> points,
         unsigned int depth,
-        SplitMethod sm) {
+        SplitMethod sm,
+        V lastV) {
 
     if (points.size() < 1) {
         return NULL;
@@ -183,18 +164,18 @@ boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(
     int split = getSplit(points, sm, axis);
 
     boost::shared_ptr<KDNode<D, V, E>> node = boost::make_shared<KDNode<D, V, E>>(points[split]);
+
     std::vector<Point<D, V, E>> _left(points.begin(), points.begin() + split);
     std::vector<Point<D, V, E>> _right(points.begin() + split + 1, points.end());
 
     depth++;
-    node->_left = buildTree(_left, depth, sm);
-    node->_right = buildTree(_right, depth, sm);
+    node->_left = buildTree(_left, depth, sm, points[split][axis]);
+    node->_right = buildTree(_right, depth, sm, points[split][axis]);
     return node;
 }
 
 template <size_t D, typename V, typename E>
 void KDTree<D, V, E>::insert(Point<D, V, E> p) {
-    //this is a thing
     int dim = 0;
     int left = 0;
     boost::shared_ptr<KDNode<D, V, E> > cur = this->_head;
@@ -238,7 +219,7 @@ void KDTree<D, V, E>::traverse(
         return;
     }
     cur->printNode();
-    std::cout<<loc<<std::endl;
+    std::cout<<"dir: "<<loc<<std::endl;
     this->traverse(cur->getLeft(), loc + "l ");
     this->traverse(cur->getRight(), loc + "r ");
 }
@@ -299,9 +280,9 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
 
     if (!bbf) { 
         V best = pq->begin()->first;
-        if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) < best) {
+        if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) <= best) {
             if (left) {
-                pq = knnTraverse(cur->_right, p,  std::move(pq), k, level++, bbf, maxlevel);
+                pq = knnTraverse(cur->getRight(), p,  std::move(pq), k, level++, bbf, maxlevel);
             } else {
                 pq = knnTraverse(cur->getLeft(), p, std::move(pq), k, level++, bbf, maxlevel);
             }
@@ -331,6 +312,14 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::search(
     std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = make_unique<std::multimap<V, Point<D, V, E>>>();
     pq = this->knnTraverse(cur, p, std::move(pq), k, 0, bbf, maxlevel);
     return pq;
+}
+
+template <size_t D, typename V, typename E>
+bool KDTree<D, V, E>::contains(Point<D, V, E> pt) {
+    //check if I contain a point
+    search_ptr<D, V, E> ret = this->search(pt, 1);
+
+    return pt == ret->begin()->second;
 }
 
 template <size_t D, typename V, typename E>

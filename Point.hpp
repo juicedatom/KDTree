@@ -62,7 +62,7 @@ V Point<D, V, E>::eucl(Point<D, V, E> p) {
         V a = p[i] - _vec[i];
         sum += a * a;
     }
-    return std::sqrt(sum);
+    return sum;
 }
 
 template <size_t D, typename V, typename E>

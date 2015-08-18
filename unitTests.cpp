@@ -31,7 +31,6 @@ std::unique_ptr<std::vector< Point<D, double, std::string> >> genRandStrPoints(
 
 
 void KDTreeTestCase::setUp () {
-    
     //Test some stuff with the file
     points = genRandStrPoints<_D_>(_N_TEST_POINTS, _MAX_PT_VAL);
     tree = make_unique<KDTree<_D_, double, std::string>>(*points);
@@ -55,7 +54,7 @@ void KDTreeTestCase::checkSize() {
             (size_t) _N_TEST_POINTS, tree->size());
 
     // Make sure the number of points read in is the same as those added
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("check the number of elements in the saml tree vs points.in", 
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("check the number of elements in the tree vs points.in", 
             points->size(), tree->size());
 }
 
@@ -98,21 +97,38 @@ void KDTreeTestCase::checkInsert() {
 
     //this vector can't possibly be in the array because it
     //has a value above the _MAX_PT_VAL
-    double arr[8] = {10, 20, 30, 40, _MAX_PT_VAL * 2, 60, 70, 80};
-    Point<8, double, std::string> pt(arr, "sup");
+    double arr[_D_] = {10, 20, 30, 40, _MAX_PT_VAL * 2, 60, 70, 80};
+    Point<_D_, double, std::string> pt(arr, "sup");
 
     size_t n = tree->size() + 1;
     tree->insert(pt);
 
-    search_ptr<_D_, double, std::string> ret;
-    ret = tree->search(pt, 1);
-
-    CPPUNIT_ASSERT_EQUAL_MESSAGE("HI",
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("check if size increased when adding a point",
             n, tree->size());
 
-    bool a = pt == ret->begin()->second;
     CPPUNIT_ASSERT_MESSAGE("check if tree can insert point",
-            a);
+            tree->contains(pt));
+}
+
+void KDTreeTestCase::saveAndLoad() {
+    
+    tree->write(_TREE_FNAME);
+
+    std::unique_ptr<KDTree<_D_, double, std::string>> treeCopy =
+        make_unique<KDTree<_D_, double, std::string>>();
+
+    treeCopy->read(_TREE_FNAME);
+
+    //CPPUNIT_ASSERT_EQUAL_MESSAGE("check if loaded tree has same size as original",
+            //tree->size(), treeCopy->size());
+
+    //for (size_t i=0; i<points->size(); i++ ){
+    for (size_t i=0; i<1; i++) {
+        search_ptr<_D_, double, std::string> ret;
+        ret = tree->search(points->at(i), 1);
+        CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",
+                treeCopy->contains(points->at(i)));
+    }
 }
 
 CppUnit::Test *suite() {

@@ -10,8 +10,9 @@
 #define _D_ 8
 #define _N_TEST_POINTS 1000
 #define _N_1_SEARCH_TEST 10
-#define _MAX_PT_VAL 50
-#define _K_ 3
+#define _MAX_PT_VAL 100
+#define _K_ 4
+#define _TREE_FNAME "mytree.tree"
 
 class KDTreeTestCase : public CppUnit::TestCase {
     
@@ -21,11 +22,13 @@ class KDTreeTestCase : public CppUnit::TestCase {
     void checkSize();
     void singleSearchExact();
     void checkInsert();
+    void saveAndLoad();
 
     CPPUNIT_TEST_SUITE( KDTreeTestCase );
     CPPUNIT_TEST( checkSize   );
     CPPUNIT_TEST( singleSearchExact );
     CPPUNIT_TEST( checkInsert );
+    CPPUNIT_TEST( saveAndLoad );
     CPPUNIT_TEST_SUITE_END();
 
     public: 
@@ -33,7 +36,6 @@ class KDTreeTestCase : public CppUnit::TestCase {
 };
 
 CppUnit::Test *suite();
-//CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase" );
 
 struct gen_rand;
 std::vector<double> parse_doubles(std::string, int);
