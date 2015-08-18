@@ -60,7 +60,8 @@ void KDTreeTestCase::singleSearchExact() {
 
         search_iter<_D_, double, std::string> pos; 
         for( pos = ret->begin(); pos != ret->end(); pos++) {
-            pos->second == pt;
+            CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",
+                pos->second == pt);
         }
     }
 }
@@ -88,6 +89,9 @@ void KDTreeTestCase::checkInsert() {
 
     Point<_D_, double, std::string> pt_b(arr, "sup");
     emptyTree->insert(pt);
+
+    CPPUNIT_ASSERT_MESSAGE("check inserting point into an empty tree",
+            emptyTree->contains(pt));
 }
 
 void KDTreeTestCase::saveAndLoad() {
@@ -116,18 +120,38 @@ void KDTreeTestCase::nearestNeighbor() {
     // value they must be the ones closest to each other
     double arr_a[_D_];
     arr_a[0] = _MAX_PT_VAL * + 3;
+    Point<_D_, double, std::string> pt_a(arr_a, "sup");
 
     double arr_b[_D_];
     arr_b[0] = _MAX_PT_VAL * + 4;
-
-    Point<_D_, double, std::string> pt_a(arr_a, "sup");
     Point<_D_, double, std::string> pt_b(arr_b, "brah");
 
-    tree->insert(pt_a);
+    double arr_c[_D_];
+    arr_c[0] = _MAX_PT_VAL * + 5;
+    Point<_D_, double, std::string> pt_c(arr_c, "im");
+
+    double arr_d[_D_];
+    arr_d[0] = _MAX_PT_VAL * + 6;
+    Point<_D_, double, std::string> pt_d(arr_d, "fine");
+
+    std::vector<Point<_D_, double, std::string>> vec;
+    vec.push_back(pt_b);
+    vec.push_back(pt_c);
+    vec.push_back(pt_d);
+
+    for (size_t i=0; i<vec.size(); i++) {
+        tree->insert(vec[i]);
+    }
 
     search_ptr<_D_, double, std::string> ret;
-    ret = tree->search(pt_b);
-    ret->begin()->second == pt_a;
+    ret = tree->search(pt_a);
+
+    search_iter<_D_, double, std::string> pos; 
+    int i=0;
+    for( pos = ret->begin(); pos != ret->end(); pos++) {
+        CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",
+            pos->second == vec[i++]);
+    }
 
 }
 
