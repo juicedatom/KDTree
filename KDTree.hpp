@@ -390,7 +390,7 @@ std::unique_ptr<std::multimap<V, Point<N, V, E>>> KDTree<N, V, E>::search(
         const unsigned int maxlevel) {
 
     boost::shared_ptr<KDNode<N, V, E>> cur = this->_head;
-    std::unique_ptr<std::multimap<V, Point<N, V, E>>> pq = make_unique<std::multimap<V, Point<N, V, E>>>();
+    std::unique_ptr<search_t<N, V, E>> pq = make_unique<search_t<N, V, E>>();
     pq = this->knnTraverse(cur, p, std::move(pq), k, 0, bbf, maxlevel);
     return pq;
 }
