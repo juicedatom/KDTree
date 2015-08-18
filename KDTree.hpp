@@ -40,17 +40,17 @@ class InvalidSplitMethodException: public std::exception {
 
 /**
  * KDTree class which can be used in many machine-learing applications
- * for faster D-dimensional point lookup.  Each Point stored in the KDTree
- * has a type V with a length of D and a cooresponding element E.
+ * for faster N-dimensional point lookup.  Each Point stored in the KDTree
+ * has a type V with a length of N and a cooresponding element E.
  */
-template <size_t D, typename V, typename E>
+template <size_t N, typename V, typename E>
 class KDTree {
     public:
 
         // constructor for creating a new KDTree
         // Takes in an std::vector of Points and stores them
         // in the tree with a MEDIAN setting as the defalt
-        KDTree(std::vector< Point<D, V, E> >,
+        KDTree(std::vector< Point<N, V, E> >,
                 SplitMethod sm = SplitMethod::MEDIAN);
 
         // default constructor.  useful for creating trees which
@@ -70,7 +70,7 @@ class KDTree {
         bool isEmpty();
 
         // Insert a new point into the tree
-        void insert(Point<D, V, E> point);
+        void insert(Point<N, V, E> point);
 
         // read and write a tree to a file.
         //
@@ -108,40 +108,40 @@ class KDTree {
         //     std::cout<<std::endl;
         // }
         //
-        std::unique_ptr<std::multimap<V, Point<D, V, E>>> search(
-                Point<D, V, E> p,
+        std::unique_ptr<std::multimap<V, Point<N, V, E>>> search(
+                Point<N, V, E> p,
                 const unsigned int k = 1,
                 const bool bbf = false,
                 const unsigned int maxlevel = 0);
 
         // returns true if Point p is in the tree
-        bool contains(Point<D, V, E> p);
+        bool contains(Point<N, V, E> p);
     private:
 
         // head of the tree.  In hindsight I don't know why I didn't make
         // this a **, whatever... I digress.
-        boost::shared_ptr<KDNode<D,V,E>> _head;
+        boost::shared_ptr<KDNode<N,V,E>> _head;
 
         // size of the tree
         size_t _size;
 
         // recursive method to help with the KDTree constructor
-        boost::shared_ptr<KDNode<D,V,E>> buildTree(
-                std::vector< Point<D,V,E>> points,
+        boost::shared_ptr<KDNode<N,V,E>> buildTree(
+                std::vector< Point<N,V,E>> points,
                 const unsigned int depth,
                 SplitMethod sm);
 
         // recursive method to help with the search method
-        std::unique_ptr<std::multimap<V, Point<D, V, E>>> knnTraverse(
-                boost::shared_ptr<KDNode<D, V, E>> cur,
-                Point<D, V, E> p, std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
+        std::unique_ptr<std::multimap<V, Point<N, V, E>>> knnTraverse(
+                boost::shared_ptr<KDNode<N, V, E>> cur,
+                Point<N, V, E> p, std::unique_ptr<std::multimap<V, Point<N, V, E>>> pq,
                 const unsigned int k,
                 unsigned int level,
                 const bool bbf = false,
                 const unsigned int maxlevel = 0);
 
         // pre-order recursive traversal to help with the sayhi() method
-        void traverse(boost::shared_ptr<KDNode<D, V, E>>, std::string gg);
+        void traverse(boost::shared_ptr<KDNode<N, V, E>>, std::string gg);
         friend class boost::serialization::access;
 
         template<class Archive>
@@ -153,32 +153,32 @@ class KDTree {
         }
 };
 
-template <size_t D, typename V, typename E>
-KDTree<D, V, E>::KDTree() {
+template <size_t N, typename V, typename E>
+KDTree<N, V, E>::KDTree() {
     this->_size = 0;
     this->_head = NULL;
 }
 
 // Helper function to sort a vector of points by a specific
 // dimension
-template <size_t D, typename V, typename E>
-std::vector< Point<D, V, E> > sortByDim(
-        std::vector<Point<D, V, E> > points,
+template <size_t N, typename V, typename E>
+std::vector< Point<N, V, E> > sortByDim(
+        std::vector<Point<N, V, E> > points,
         int d) {
 
-    std::sort(points.begin(), points.end(), ComparePtByDim<D, V, E>(d));
+    std::sort(points.begin(), points.end(), ComparePtByDim<N, V, E>(d));
     return points;
 }
 
-template <size_t D, typename V, typename E>
-KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points,
+template <size_t N, typename V, typename E>
+KDTree<N, V, E>::KDTree(std::vector<Point<N, V, E>> points,
         SplitMethod sm) {
     if (points.size() == 0) {
         EmptyPointListException a;
         throw a;
     }
 
-    boost::shared_ptr<KDNode<D, V, E>> _head = buildTree(points, 0, sm);
+    boost::shared_ptr<KDNode<N, V, E>> _head = buildTree(points, 0, sm);
     this->_size = points.size();
     this->_head = _head;
 }
@@ -186,8 +186,8 @@ KDTree<D, V, E>::KDTree(std::vector<Point<D, V, E>> points,
 // helper method to decide how the tree should be broken up.  currently only
 // the median is implemented but this could easily be extended to other methods
 // for example, mean.
-template <size_t D, typename V, typename E>
-int getSplit(std::vector<Point<D, V, E>> points, SplitMethod sm, int axis) {
+template <size_t N, typename V, typename E>
+int getSplit(std::vector<Point<N, V, E>> points, SplitMethod sm, int axis) {
     int split = -1;
     switch (sm) {
         case SplitMethod::MEDIAN:
@@ -202,9 +202,9 @@ int getSplit(std::vector<Point<D, V, E>> points, SplitMethod sm, int axis) {
     return split;
 }
 
-template <size_t D, typename V, typename E>
-boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(
-        std::vector<Point<D, V, E>> points,
+template <size_t N, typename V, typename E>
+boost::shared_ptr<KDNode<N, V, E>> KDTree<N, V, E>::buildTree(
+        std::vector<Point<N, V, E>> points,
         unsigned int depth,
         SplitMethod sm) {
 
@@ -215,15 +215,15 @@ boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(
 
     // get the current axis to sort on, sort the points
     // based on that and extract the median
-    int axis = depth % D;
+    int axis = depth % N;
     points = sortByDim(points, axis);
     int split = getSplit(points, sm, axis);
 
-    boost::shared_ptr<KDNode<D, V, E>> node = boost::make_shared<KDNode<D, V, E>>(points[split]);
+    boost::shared_ptr<KDNode<N, V, E>> node = boost::make_shared<KDNode<N, V, E>>(points[split]);
 
     // create the new left and right nodes around the median
-    std::vector<Point<D, V, E>> _left(points.begin(), points.begin() + split);
-    std::vector<Point<D, V, E>> _right(points.begin() + split + 1, points.end());
+    std::vector<Point<N, V, E>> _left(points.begin(), points.begin() + split);
+    std::vector<Point<N, V, E>> _right(points.begin() + split + 1, points.end());
 
     // recurse
     depth++;
@@ -232,16 +232,16 @@ boost::shared_ptr<KDNode<D, V, E>> KDTree<D, V, E>::buildTree(
     return node;
 }
 
-template <size_t D, typename V, typename E>
-void KDTree<D, V, E>::insert(Point<D, V, E> p) {
+template <size_t N, typename V, typename E>
+void KDTree<N, V, E>::insert(Point<N, V, E> p) {
 
     int level = 0;
     int left = 0;
-    boost::shared_ptr<KDNode<D, V, E> > cur = this->_head;
-    boost::shared_ptr<KDNode<D, V, E> > last = NULL;
+    boost::shared_ptr<KDNode<N, V, E> > cur = this->_head;
+    boost::shared_ptr<KDNode<N, V, E> > last = NULL;
     while(1) {
         //update our current axis and then increment the level
-        int axis = level++ % D;
+        int axis = level++ % N;
 
         if (cur == NULL) {
             break;
@@ -258,7 +258,7 @@ void KDTree<D, V, E>::insert(Point<D, V, E> p) {
             left = 0;
         }
     }
-    boost::shared_ptr<KDNode<D, V, E>> tmp = boost::make_shared<KDNode<D, V, E>>(p);
+    boost::shared_ptr<KDNode<N, V, E>> tmp = boost::make_shared<KDNode<N, V, E>>(p);
     
     // if the last node is NULL then the tree must
     // be empty.
@@ -277,14 +277,14 @@ void KDTree<D, V, E>::insert(Point<D, V, E> p) {
     this->_size++;
 }
 
-template <size_t D, typename V, typename E>
-void KDTree<D, V, E>::sayhi() {
+template <size_t N, typename V, typename E>
+void KDTree<N, V, E>::sayhi() {
     this->traverse(this->_head, "");
 }
 
-template <size_t D, typename V, typename E>
-void KDTree<D, V, E>::traverse(
-        boost::shared_ptr<KDNode<D, V, E> > cur,
+template <size_t N, typename V, typename E>
+void KDTree<N, V, E>::traverse(
+        boost::shared_ptr<KDNode<N, V, E> > cur,
         std::string loc) {
 
     if (cur == NULL) {
@@ -296,27 +296,27 @@ void KDTree<D, V, E>::traverse(
     this->traverse(cur->getRight(), loc + "r ");
 }
 
-template <size_t D, typename V, typename E>
-size_t KDTree<D, V, E>::dim() {
-    return D;
+template <size_t N, typename V, typename E>
+size_t KDTree<N, V, E>::dim() {
+    return N;
 }
 
-template <size_t D, typename V, typename E>
-size_t KDTree<D, V, E>::size() {
+template <size_t N, typename V, typename E>
+size_t KDTree<N, V, E>::size() {
     return this->_size;
 }
 
-template <size_t D, typename V, typename E>
-bool KDTree<D, V, E>::isEmpty() {
+template <size_t N, typename V, typename E>
+bool KDTree<N, V, E>::isEmpty() {
     return this->size() < 1;
 }
 
 // recursive method which performs the majority of the search() functionality
-template <size_t D, typename V, typename E>
-std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
-        boost::shared_ptr<KDNode<D, V, E>> cur,
-        Point<D, V, E> p,
-        std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq,
+template <size_t N, typename V, typename E>
+std::unique_ptr<std::multimap<V, Point<N, V, E>>> KDTree<N, V, E>::knnTraverse(
+        boost::shared_ptr<KDNode<N, V, E>> cur,
+        Point<N, V, E> p,
+        std::unique_ptr<std::multimap<V, Point<N, V, E>>> pq,
         const unsigned int k,
         unsigned int level,
         const bool bbf,
@@ -338,14 +338,14 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
     // pq is implemented with std::map because std::map is ordered and
     // you can conviniently remove from the bottom.  unlike std::priority_queue
     // where it only holds a single object and you can only pop from the top.
-    pq->insert(std::pair<V, Point<D, V, E>>(distance, cur->getPoint()));
+    pq->insert(std::pair<V, Point<N, V, E>>(distance, cur->getPoint()));
 
     // if the pq gets larger than k, remove the last element
     if (pq->size() > k) {
         pq->erase(std::prev(pq->end()));
     }
 
-    V axis = level++ % D;
+    V axis = level++ % N;
     bool left = true;
 
     // if the value at the axis of the current node is less than p, go left. else go right
@@ -373,31 +373,31 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
    return pq;
 }
 
-template <size_t D, typename V, typename E>
-using search_t = std::multimap<V, Point<D, V, E>>;
+template <size_t N, typename V, typename E>
+using search_t = std::multimap<V, Point<N, V, E>>;
 
-template <size_t D, typename V, typename E>
-using search_ptr = std::unique_ptr<search_t<D, V, E>>;
+template <size_t N, typename V, typename E>
+using search_ptr = std::unique_ptr<search_t<N, V, E>>;
 
-template <size_t D, typename V, typename E>
-using search_iter = typename search_t<D, V, E>::iterator;
+template <size_t N, typename V, typename E>
+using search_iter = typename search_t<N, V, E>::iterator;
 
-template <size_t D, typename V, typename E>
-std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::search(
-        Point<D, V, E> p,
+template <size_t N, typename V, typename E>
+std::unique_ptr<std::multimap<V, Point<N, V, E>>> KDTree<N, V, E>::search(
+        Point<N, V, E> p,
         const unsigned int k,
         const bool bbf,
         const unsigned int maxlevel) {
 
-    boost::shared_ptr<KDNode<D, V, E>> cur = this->_head;
-    std::unique_ptr<std::multimap<V, Point<D, V, E>>> pq = make_unique<std::multimap<V, Point<D, V, E>>>();
+    boost::shared_ptr<KDNode<N, V, E>> cur = this->_head;
+    std::unique_ptr<std::multimap<V, Point<N, V, E>>> pq = make_unique<std::multimap<V, Point<N, V, E>>>();
     pq = this->knnTraverse(cur, p, std::move(pq), k, 0, bbf, maxlevel);
     return pq;
 }
 
-template <size_t D, typename V, typename E>
-bool KDTree<D, V, E>::contains(Point<D, V, E> pt) {
-    search_ptr<D, V, E> ret = this->search(pt, 1);
+template <size_t N, typename V, typename E>
+bool KDTree<N, V, E>::contains(Point<N, V, E> pt) {
+    search_ptr<N, V, E> ret = this->search(pt, 1);
 
     return pt == ret->begin()->second;
 }
@@ -405,8 +405,8 @@ bool KDTree<D, V, E>::contains(Point<D, V, E> pt) {
 // serialize into a binary archive, in the future
 // this could be replaced with a choice to go with
 // a text archive so the class is more portable.
-template <size_t D, typename V, typename E>
-void KDTree<D, V, E>::write(std::string fname) {
+template <size_t N, typename V, typename E>
+void KDTree<N, V, E>::write(std::string fname) {
     std::ofstream ofs(fname);
     boost::archive::binary_oarchive oa(ofs);
     oa & this->_head & this->_size;
@@ -414,8 +414,8 @@ void KDTree<D, V, E>::write(std::string fname) {
 
 // read from binary archive.  same comment regarding
 // text archives applies here as above.
-template <size_t D, typename V, typename E>
-void KDTree<D, V, E>::read(std::string fname) {
+template <size_t N, typename V, typename E>
+void KDTree<N, V, E>::read(std::string fname) {
     std::ifstream ifs(fname);
     boost::archive::binary_iarchive ia(ifs);
     ia & this->_head & this->_size;

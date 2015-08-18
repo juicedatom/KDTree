@@ -9,7 +9,7 @@
 #include "genPoints.hpp"
 
 // how many dimensions we want to run our tests in
-#define _D_ 8
+#define _N_ 8
 
 // number of points to generate for our test tree
 #define _N_TEST_POINTS 1000
@@ -27,9 +27,9 @@
 
 class KDTreeTestCase : public CppUnit::TestCase {
    
-    std::unique_ptr<KDTree<_D_, double, std::string>> tree;
-    std::unique_ptr<KDTree<_D_, double, std::string>> emptyTree;
-    std::unique_ptr<std::vector<Point<_D_, double, std::string>>> points;
+    std::unique_ptr<KDTree<_N_, double, std::string>> tree;
+    std::unique_ptr<KDTree<_N_, double, std::string>> emptyTree;
+    std::unique_ptr<std::vector<Point<_N_, double, std::string>>> points;
 
     /**
      * Checks the size of various operations on trees

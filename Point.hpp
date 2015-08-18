@@ -13,10 +13,10 @@
 
 /** 
  * This class holds information regarding a Point where a vector of
- * type V and length D represent a point in space.  The Point holds
+ * type V and length N represent a point in space.  The Point holds
  * an element of type E
 */
-template <size_t D, typename V, typename E>
+template <size_t N, typename V, typename E>
 class Point {
     private:
         E _element;
@@ -36,16 +36,16 @@ class Point {
         }
 
         // equality overloading
-        bool operator==(const Point<D, V, E>& other) const;
-        bool operator!=(const Point<D, V, E>& other) const;
+        bool operator==(const Point<N, V, E>& other) const;
+        bool operator!=(const Point<N, V, E>& other) const;
 
         E getEle() const { return this->_element; };
-        size_t getDim() const { return D; }
+        size_t getDim() const { return N; }
 
         // useful when you need to access a Point based
         // on a memory location.  ex) a->at(4)
         V at(int x){ return _vec[x]; }
-        V dist(Point<D, V, E> p);
+        V dist(Point<N, V, E> p);
         std::vector<V> getVec() const { return this->_vec; };
 
         // debugging statement to print the Point vec
@@ -59,55 +59,55 @@ class Point {
         }
 };
 
-template <size_t D, typename V, typename E>
-Point<D, V, E>::Point(std::vector<V> vec, E element) {
+template <size_t N, typename V, typename E>
+Point<N, V, E>::Point(std::vector<V> vec, E element) {
     this->_element = element;
     this->_vec = vec;
 }
 
-template <size_t D, typename V, typename E>
-Point<D, V, E>::Point(V arr[], E element) {
+template <size_t N, typename V, typename E>
+Point<N, V, E>::Point(V arr[], E element) {
     this->_element = element;
     std::vector<V> vec(arr, arr + sizeof(arr) / sizeof(arr[0]) );
     this->_vec = vec;
 }
 
-template <size_t D, typename V, typename E>
-V Point<D, V, E>::dist(Point<D, V, E> p) {
+template <size_t N, typename V, typename E>
+V Point<N, V, E>::dist(Point<N, V, E> p) {
     V sum = 0;
-    for (size_t i=0; i<D; i++) {
+    for (size_t i=0; i<N; i++) {
         V a = p[i] - _vec[i];
         sum += a * a;
     }
     return sum*sum;
 }
 
-template <size_t D, typename V, typename E>
-bool Point<D, V, E>::operator==(const Point<D, V, E>& other) const {
+template <size_t N, typename V, typename E>
+bool Point<N, V, E>::operator==(const Point<N, V, E>& other) const {
     return this->getVec() == other.getVec() && 
         this->getEle() == other.getEle();
 }
 
-template <size_t D, typename V, typename E>
-bool Point<D, V, E>::operator!=(const Point<D, V, E>& other) const {
+template <size_t N, typename V, typename E>
+bool Point<N, V, E>::operator!=(const Point<N, V, E>& other) const {
     return ! ((*this) == other);
 }
 
-template <size_t D, typename V, typename E>
-void Point<D, V, E>::sayhi() {
-    for(size_t i=0; i<D; i++) {
+template <size_t N, typename V, typename E>
+void Point<N, V, E>::sayhi() {
+    for(size_t i=0; i<N; i++) {
         std::cout<<this->_vec[i]<<" ";
     }
 }
 
 
-template <size_t D, typename V, typename E>
+template <size_t N, typename V, typename E>
 struct ComparePtByDim {
     ComparePtByDim(int d) {
         this-> d = d;
     }
 
-    bool operator () (Point<D, V, E> i, Point<D, V, E> j) {
+    bool operator () (Point<N, V, E> i, Point<N, V, E> j) {
         return i[d] < j[d];
     }
 

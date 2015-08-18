@@ -4,9 +4,9 @@ CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase");
 
 void KDTreeTestCase::setUp () {
     //Test some stuff with the file
-    points = genRandStrPoints<_D_>(_N_TEST_POINTS, _MAX_PT_VAL);
-    tree = make_unique<KDTree<_D_, double, std::string>>(*points);
-    emptyTree = make_unique<KDTree<_D_, double, std::string>>();
+    points = genRandStrPoints<_N_>(_N_TEST_POINTS, _MAX_PT_VAL);
+    tree = make_unique<KDTree<_N_, double, std::string>>(*points);
+    emptyTree = make_unique<KDTree<_N_, double, std::string>>();
 }
 
 void KDTreeTestCase::checkSize() {
@@ -50,15 +50,15 @@ void KDTreeTestCase::singleSearchExact() {
     CPPUNIT_ASSERT_MESSAGE("make sure points can be compared with different points",
             aa != ba);
   
-    Point<_D_, double, std::string> pt;
-    search_ptr<_D_, double, std::string> ret;
+    Point<_N_, double, std::string> pt;
+    search_ptr<_N_, double, std::string> ret;
     // Grab a bunch of random known point and look for it in the tree
     for (int test = 0; test < _N_1_SEARCH_TEST; test++) {
         pt = points->at(rand() % _N_TEST_POINTS);
 
         ret = tree->search(pt);
 
-        search_iter<_D_, double, std::string> pos; 
+        search_iter<_N_, double, std::string> pos; 
         for( pos = ret->begin(); pos != ret->end(); pos++) {
             CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",
                 pos->second == pt);
@@ -70,13 +70,13 @@ void KDTreeTestCase::checkInsert() {
 
     //this vector can't possibly be in the array because it
     //has a value above the _MAX_PT_VAL
-    double arr[_D_];
+    double arr[_N_];
     arr[0] = _MAX_PT_VAL * 2;
-    for (int i=1; i<_D_; i++) {
+    for (int i=1; i<_N_; i++) {
         arr[i] = i;
     }
 
-    Point<_D_, double, std::string> pt(arr, "sup");
+    Point<_N_, double, std::string> pt(arr, "sup");
 
     size_t n = tree->size() + 1;
     tree->insert(pt);
@@ -87,7 +87,7 @@ void KDTreeTestCase::checkInsert() {
     CPPUNIT_ASSERT_MESSAGE("check if tree can insert point",
             tree->contains(pt));
 
-    Point<_D_, double, std::string> pt_b(arr, "sup");
+    Point<_N_, double, std::string> pt_b(arr, "sup");
     emptyTree->insert(pt);
 
     CPPUNIT_ASSERT_MESSAGE("check inserting point into an empty tree",
@@ -98,8 +98,8 @@ void KDTreeTestCase::saveAndLoad() {
     
     tree->write(_TREE_FNAME);
 
-    std::unique_ptr<KDTree<_D_, double, std::string>> treeCopy =
-        make_unique<KDTree<_D_, double, std::string>>();
+    std::unique_ptr<KDTree<_N_, double, std::string>> treeCopy =
+        make_unique<KDTree<_N_, double, std::string>>();
 
     treeCopy->read(_TREE_FNAME);
 
@@ -107,7 +107,7 @@ void KDTreeTestCase::saveAndLoad() {
             tree->size(), treeCopy->size());
 
     for (size_t i=0; i<points->size(); i++ ){
-        search_ptr<_D_, double, std::string> ret;
+        search_ptr<_N_, double, std::string> ret;
         ret = tree->search(points->at(i), 1);
         CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",
                 treeCopy->contains(points->at(i)));
@@ -118,23 +118,23 @@ void KDTreeTestCase::nearestNeighbor() {
     
     // Because these two points both contain a point outside the max
     // value they must be the ones closest to each other
-    double arr_a[_D_];
+    double arr_a[_N_];
     arr_a[0] = _MAX_PT_VAL * + 3;
-    Point<_D_, double, std::string> pt_a(arr_a, "sup");
+    Point<_N_, double, std::string> pt_a(arr_a, "sup");
 
-    double arr_b[_D_];
+    double arr_b[_N_];
     arr_b[0] = _MAX_PT_VAL * + 4;
-    Point<_D_, double, std::string> pt_b(arr_b, "brah");
+    Point<_N_, double, std::string> pt_b(arr_b, "brah");
 
-    double arr_c[_D_];
+    double arr_c[_N_];
     arr_c[0] = _MAX_PT_VAL * + 5;
-    Point<_D_, double, std::string> pt_c(arr_c, "im");
+    Point<_N_, double, std::string> pt_c(arr_c, "im");
 
-    double arr_d[_D_];
+    double arr_d[_N_];
     arr_d[0] = _MAX_PT_VAL * + 6;
-    Point<_D_, double, std::string> pt_d(arr_d, "fine");
+    Point<_N_, double, std::string> pt_d(arr_d, "fine");
 
-    std::vector<Point<_D_, double, std::string>> vec;
+    std::vector<Point<_N_, double, std::string>> vec;
     vec.push_back(pt_b);
     vec.push_back(pt_c);
     vec.push_back(pt_d);
@@ -143,10 +143,10 @@ void KDTreeTestCase::nearestNeighbor() {
         tree->insert(vec[i]);
     }
 
-    search_ptr<_D_, double, std::string> ret;
+    search_ptr<_N_, double, std::string> ret;
     ret = tree->search(pt_a);
 
-    search_iter<_D_, double, std::string> pos; 
+    search_iter<_N_, double, std::string> pos; 
     int i=0;
     for( pos = ret->begin(); pos != ret->end(); pos++) {
         CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",

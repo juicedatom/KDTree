@@ -1,7 +1,7 @@
-CC=g++-4.8
+CC=g++
 CFLAGS=-c -Wall
 LDFLAGS=-lboost_serialization -lcppunit
-SOURCES=use_tree.cpp unitTests.cpp
+SOURCES=runUnitTests.cpp unitTests.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=TreeTest
 AFTERFLAGS=-std=c++11
