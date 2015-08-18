@@ -1,5 +1,7 @@
 #include "unitTests.h"
 
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase");
+
 struct gen_rand { 
     double range;
 public:
@@ -20,19 +22,20 @@ std::unique_ptr<std::vector< Point<D, double, std::string> >> genRandStrPoints(
     
     for (int i=0; i<n; i++) {
         std::generate_n(tmp.begin(), D, gen_rand(range));
-        Point<D, double, std::string> p(tmp, "");
+        Point<D, double, std::string> p(tmp, "<DEFAULT>");
         ret->push_back(p);
     }
 
     return ret;
 }
 
+
 void KDTreeTestCase::setUp () {
     
     //Test some stuff with the file
-    testTreePoints = genRandStrPoints<8>(_N_TEST_POINTS, 50);
-    testTree = make_unique<KDTree<8, double, std::string>>(*testTreePoints);
-    emptyTree = make_unique<KDTree<2, double, std::string>>();
+    points = genRandStrPoints<_D_>(_N_TEST_POINTS, _MAX_PT_VAL);
+    tree = make_unique<KDTree<_D_, double, std::string>>(*points);
+    emptyTree = make_unique<KDTree<_D_, double, std::string>>();
 }
 
 void KDTreeTestCase::checkSize() {
@@ -41,75 +44,83 @@ void KDTreeTestCase::checkSize() {
 
     // Make sure the tree parsed some data
     CPPUNIT_ASSERT_MESSAGE("check the points.in to make sure the points are being read property",
-            testTreePoints->size() != 0);
+            points->size() != 0);
 
     // Make sure the tree is not empty
     CPPUNIT_ASSERT_MESSAGE("check if tree is empty after given points",
-            testTree->size() != 0);
+            tree->size() != 0);
 
     // make sure the tree parsed all the data
     CPPUNIT_ASSERT_EQUAL_MESSAGE("small tree init size check fail",
-            (size_t) _N_TEST_POINTS, testTree->size());
+            (size_t) _N_TEST_POINTS, tree->size());
 
     // Make sure the number of points read in is the same as those added
     CPPUNIT_ASSERT_EQUAL_MESSAGE("check the number of elements in the saml tree vs points.in", 
-            testTreePoints->size(), testTree->size());
+            points->size(), tree->size());
 }
 
-void KDTreeTestCase::checkSearch() {
+void KDTreeTestCase::singleSearchExact() {
+    
+    //make sure we can compare points accuratly
+    double a[3] = {1,2,3};
+    double b[3] = {3,2,1};
+
+    //Technically i could do 16 different tests but for now
+    //I'm going to test the two that are important to this
+    //test.  If i were to keep going, i would have separate
+    //tests for points
+    Point<3, double, std::string> aa(a, "hello");
+    Point<3, double, std::string> aa_2(a, "hello");
+    Point<3, double, std::string> ba(b, "goodbye");
+
+    CPPUNIT_ASSERT_MESSAGE("make sure points can be compared with similiar points",
+            aa == aa_2);
+
+    CPPUNIT_ASSERT_MESSAGE("make sure points can be compared with different points",
+            aa != ba);
+  
+    Point<_D_, double, std::string> pt;
+    search_ptr<_D_, double, std::string> ret;
+    // Grab a bunch of random known point and look for it in the tree
+    for (int test = 0; test < _N_1_SEARCH_TEST; test++) {
+        pt = points->at(rand() % _N_TEST_POINTS);
+
+        ret = tree->search(pt, 1);
+
+        search_iter<_D_, double, std::string> pos; 
+        for( pos = ret->begin(); pos != ret->end(); pos++) {
+            pos->second == pt;
+        }
+    }
 }
 
 void KDTreeTestCase::checkInsert() {
-    //test insert methods here
+
+    //this vector can't possibly be in the array because it
+    //has a value above the _MAX_PT_VAL
+    double arr[8] = {10, 20, 30, 40, _MAX_PT_VAL * 2, 60, 70, 80};
+    Point<8, double, std::string> pt(arr, "sup");
+
+    size_t n = tree->size() + 1;
+    tree->insert(pt);
+
+    search_ptr<_D_, double, std::string> ret;
+    ret = tree->search(pt, 1);
+
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("HI",
+            n, tree->size());
+
+    bool a = pt == ret->begin()->second;
+    CPPUNIT_ASSERT_MESSAGE("check if tree can insert point",
+            a);
 }
 
 CppUnit::Test *suite() {
     CppUnit::TestFactoryRegistry &registry =
         CppUnit::TestFactoryRegistry::getRegistry();
 
-  registry.registerFactory(
+    registry.registerFactory(
       &CppUnit::TestFactoryRegistry::getRegistry( "KDTreeTestCase" ) );
-  return registry.makeTest();
+
+    return registry.makeTest();
 }
-
-//void ExampleTestCase::setUp () {
-    //m_value1 = 2.0;
-    //m_value2 = 3.0;
-//}
-
-
-//void ExampleTestCase::example () {
-    //CPPUNIT_ASSERT (1 == 1);
-//}
-
-
-//void ExampleTestCase::anotherExample () {
-    //CPPUNIT_ASSERT (2 == 2);
-//}
-
-
-//void ExampleTestCase::testEquals () {
-    ////std::auto_ptr<long> l1 (new long (12));
-    ////std::auto_ptr<long> l2 (new long (12));
-    //std::unique_ptr<long> l1 = make_unique<long>(12);
-    //std::unique_ptr<long> l2 = make_unique<long>(12);
-
-    //CPPUNIT_ASSERT_DOUBLES_EQUAL (m_value1, 2.0, 0.01);
-    //CPPUNIT_ASSERT_DOUBLES_EQUAL (m_value2, 3.0, 0.01);
-    //CPPUNIT_ASSERT_EQUAL (12, 12);
-    //CPPUNIT_ASSERT_EQUAL (12L, 12L);
-    //CPPUNIT_ASSERT_EQUAL (*l1, *l2);
-
-    //CPPUNIT_ASSERT(12L == 12L);
-    //CPPUNIT_ASSERT_DOUBLES_EQUAL (12.0, 11.99, 0.5);
-//}
-
-
-//CppUnit::Test *suite() {
-  //CppUnit::TestFactoryRegistry &registry =
-                      //CppUnit::TestFactoryRegistry::getRegistry();
-
-  //registry.registerFactory(
-      //&CppUnit::TestFactoryRegistry::getRegistry( "ExampleTestCase" ) );
-  //return registry.makeTest();
-//}

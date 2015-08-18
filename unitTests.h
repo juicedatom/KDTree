@@ -7,20 +7,24 @@
 #include "memoryHelper.hpp"
 #include "KDTree.hpp"
 
+#define _D_ 8
 #define _N_TEST_POINTS 1000
+#define _N_1_SEARCH_TEST 10
+#define _MAX_PT_VAL 50
+#define _K_ 3
 
 class KDTreeTestCase : public CppUnit::TestCase {
     
-    std::unique_ptr<KDTree<8, double, std::string>> testTree;
-    std::unique_ptr<KDTree<2, double, std::string>> emptyTree;
-    std::unique_ptr<std::vector<Point<8, double, std::string>>> testTreePoints;
+    std::unique_ptr<KDTree<_D_, double, std::string>> tree;
+    std::unique_ptr<KDTree<_D_, double, std::string>> emptyTree;
+    std::unique_ptr<std::vector<Point<_D_, double, std::string>>> points;
     void checkSize();
-    void checkSearch();
+    void singleSearchExact();
     void checkInsert();
 
     CPPUNIT_TEST_SUITE( KDTreeTestCase );
     CPPUNIT_TEST( checkSize   );
-    CPPUNIT_TEST( checkSearch );
+    CPPUNIT_TEST( singleSearchExact );
     CPPUNIT_TEST( checkInsert );
     CPPUNIT_TEST_SUITE_END();
 
@@ -29,7 +33,7 @@ class KDTreeTestCase : public CppUnit::TestCase {
 };
 
 CppUnit::Test *suite();
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase" );
+//CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase" );
 
 struct gen_rand;
 std::vector<double> parse_doubles(std::string, int);

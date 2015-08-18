@@ -36,6 +36,7 @@ class InvalidSplitMethodException: public std::exception {
         return "Invalid Split Method";
     }
 };
+
 #endif
 
 template <size_t D, typename V, typename E>
@@ -309,6 +310,15 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
 
    return pq;
 }
+
+template <size_t D, typename V, typename E>
+using search_t = std::multimap<V, Point<D, V, E>>;
+
+template <size_t D, typename V, typename E>
+using search_ptr = std::unique_ptr<search_t<D, V, E>>;
+
+template <size_t D, typename V, typename E>
+using search_iter = typename search_t<D, V, E>::iterator;
 
 template <size_t D, typename V, typename E>
 std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::search(

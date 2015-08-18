@@ -19,12 +19,19 @@ class Point {
     public:
         Point(){};
         Point(std::vector<V> points, E element);
+        Point(V arr[], E element);
+
         V& operator[] (int x) {
             return _vec[x];
         }
-        E getEle() { return this->_element; };
+        bool operator==(const Point<D, V, E>& other) const;
+        bool operator!=(const Point<D, V, E>& other) const;
+
+        E getEle() const { return this->_element; };
+        size_t getDim() const { return D; }
+        V at(int x){ return _vec[x]; }
         V eucl(Point<D, V, E> p);
-        std::vector<V> getVec() { return this->_vec; };
+        std::vector<V> getVec() const { return this->_vec; };
         void sayhi();
 
          //Everything serialization related
@@ -42,6 +49,13 @@ Point<D, V, E>::Point(std::vector<V> vec, E element) {
 }
 
 template <size_t D, typename V, typename E>
+Point<D, V, E>::Point(V arr[], E element) {
+    this->_element = element;
+    std::vector<V> vec(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+    this->_vec = vec;
+}
+
+template <size_t D, typename V, typename E>
 V Point<D, V, E>::eucl(Point<D, V, E> p) {
     V sum = 0;
     for (size_t i=0; i<D; i++) {
@@ -49,6 +63,17 @@ V Point<D, V, E>::eucl(Point<D, V, E> p) {
         sum += a * a;
     }
     return std::sqrt(sum);
+}
+
+template <size_t D, typename V, typename E>
+bool Point<D, V, E>::operator==(const Point<D, V, E>& other) const {
+    return this->getVec() == other.getVec() && 
+        this->getEle() == other.getEle();
+}
+
+template <size_t D, typename V, typename E>
+bool Point<D, V, E>::operator!=(const Point<D, V, E>& other) const {
+    return ! ((*this) == other);
 }
 
 template <size_t D, typename V, typename E>
