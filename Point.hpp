@@ -30,7 +30,7 @@ class Point {
         E getEle() const { return this->_element; };
         size_t getDim() const { return D; }
         V at(int x){ return _vec[x]; }
-        V eucl(Point<D, V, E> p);
+        V dist(Point<D, V, E> p);
         std::vector<V> getVec() const { return this->_vec; };
         void sayhi();
 
@@ -56,13 +56,13 @@ Point<D, V, E>::Point(V arr[], E element) {
 }
 
 template <size_t D, typename V, typename E>
-V Point<D, V, E>::eucl(Point<D, V, E> p) {
+V Point<D, V, E>::dist(Point<D, V, E> p) {
     V sum = 0;
     for (size_t i=0; i<D; i++) {
         V a = p[i] - _vec[i];
         sum += a * a;
     }
-    return sum;
+    return sum*sum;
 }
 
 template <size_t D, typename V, typename E>

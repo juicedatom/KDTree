@@ -262,7 +262,7 @@ std::unique_ptr<std::multimap<V, Point<D, V, E>>> KDTree<D, V, E>::knnTraverse(
         return pq;
     }
 
-    V distance = cur->getPoint().eucl(p);
+    V distance = cur->getPoint().dist(p);
     pq->insert(std::pair<V, Point<D, V, E>>(distance, cur->getPoint()));
 
     if (pq->size() > k) {

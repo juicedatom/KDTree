@@ -97,7 +97,12 @@ void KDTreeTestCase::checkInsert() {
 
     //this vector can't possibly be in the array because it
     //has a value above the _MAX_PT_VAL
-    double arr[_D_] = {10, 20, 30, 40, _MAX_PT_VAL * 2, 60, 70, 80};
+    double arr[_D_];
+    arr[0] = _MAX_PT_VAL * 2;
+    for (int i=1; i<_D_; i++) {
+        arr[i] = i;
+    }
+
     Point<_D_, double, std::string> pt(arr, "sup");
 
     size_t n = tree->size() + 1;
