@@ -249,7 +249,7 @@ size_t KDTree<D, V, E>::dim() {
 
 template <size_t D, typename V, typename E>
 size_t KDTree<D, V, E>::size() {
-    return this->_size();
+    return this->_size;
 }
 
 template <size_t D, typename V, typename E>

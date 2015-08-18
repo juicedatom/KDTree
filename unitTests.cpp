@@ -1,31 +1,5 @@
 #include "unitTests.h"
 
-std::vector<double> parse_doubles(std::string str, int n) {
-    std::vector<double> ret;
-    std::stringstream stream(str);
-    for( int i = 0; i < n; i++ ) {
-        double val;
-        stream >> val;
-        ret.push_back(val);
-    }
-    return ret;
-}
-
-template <size_t D>
-std::vector<Point<D, double, std::string>> get_points(std::string ifname) {
-    std::string line;
-    std::ifstream myfile (ifname);
-    std::vector<Point<D, double, std::string>> points;
-    if (myfile.is_open()) {
-        while (std::getline(myfile, line)) {
-            std::vector<double> vec = parse_doubles(line, D);
-            Point<D, double, std::string> p(vec, "");
-            points.push_back(p);
-        }
-    }
-    return points;
-}
-
 struct gen_rand { 
     double range;
 public:
@@ -36,14 +10,18 @@ public:
 };
 
 template <size_t D>
-std::vector< Point<D, double, std::string> > genRandStrPoints(int n, double range=1.0) {
+std::unique_ptr<std::vector< Point<D, double, std::string> >> genRandStrPoints(
+        int n, double range=1.0) {
+
     std::vector<double> tmp(D);
-    std::vector<Point<D, double, std::string>> ret;
+
+    std::unique_ptr<std::vector<Point<D, double, std::string>>> ret =
+        make_unique<std::vector<Point<D, double, std::string>>>();
     
     for (int i=0; i<n; i++) {
         std::generate_n(tmp.begin(), D, gen_rand(range));
         Point<D, double, std::string> p(tmp, "");
-        ret.push_back(p);
+        ret->push_back(p);
     }
 
     return ret;
@@ -52,15 +30,37 @@ std::vector< Point<D, double, std::string> > genRandStrPoints(int n, double rang
 void KDTreeTestCase::setUp () {
     
     //Test some stuff with the file
-    const std::string ifname = "points.in";
-    std::vector<Point<2, double, std::string>> points = get_points<2>(ifname);
-
-    smallTree = make_unique<KDTree<2, double, std::string>>(points);
-    //bigTree = make_unique<KDTree<8, double, int>> bigTree;
+    testTreePoints = genRandStrPoints<8>(_N_TEST_POINTS, 50);
+    testTree = make_unique<KDTree<8, double, std::string>>(*testTreePoints);
+    emptyTree = make_unique<KDTree<2, double, std::string>>();
 }
 
 void KDTreeTestCase::checkSize() {
-    CPPUNIT_ASSERT (1 == 1);
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("check size of empty tree",
+            (size_t) 0, (size_t) emptyTree->size());
+
+    // Make sure the tree parsed some data
+    CPPUNIT_ASSERT_MESSAGE("check the points.in to make sure the points are being read property",
+            testTreePoints->size() != 0);
+
+    // Make sure the tree is not empty
+    CPPUNIT_ASSERT_MESSAGE("check if tree is empty after given points",
+            testTree->size() != 0);
+
+    // make sure the tree parsed all the data
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("small tree init size check fail",
+            (size_t) _N_TEST_POINTS, testTree->size());
+
+    // Make sure the number of points read in is the same as those added
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("check the number of elements in the saml tree vs points.in", 
+            testTreePoints->size(), testTree->size());
+}
+
+void KDTreeTestCase::checkSearch() {
+}
+
+void KDTreeTestCase::checkInsert() {
+    //test insert methods here
 }
 
 CppUnit::Test *suite() {
