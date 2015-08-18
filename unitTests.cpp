@@ -2,34 +2,6 @@
 
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase");
 
-struct gen_rand { 
-    double range;
-public:
-    gen_rand(double r=1.0) : range(r) {}
-    double operator()() { 
-        return (rand()/(double)RAND_MAX) * range;
-    }
-};
-
-template <size_t D>
-std::unique_ptr<std::vector< Point<D, double, std::string> >> genRandStrPoints(
-        int n, double range=1.0) {
-
-    std::vector<double> tmp(D);
-
-    std::unique_ptr<std::vector<Point<D, double, std::string>>> ret =
-        make_unique<std::vector<Point<D, double, std::string>>>();
-    
-    for (int i=0; i<n; i++) {
-        std::generate_n(tmp.begin(), D, gen_rand(range));
-        Point<D, double, std::string> p(tmp, "<DEFAULT>");
-        ret->push_back(p);
-    }
-
-    return ret;
-}
-
-
 void KDTreeTestCase::setUp () {
     //Test some stuff with the file
     points = genRandStrPoints<_D_>(_N_TEST_POINTS, _MAX_PT_VAL);
@@ -84,7 +56,7 @@ void KDTreeTestCase::singleSearchExact() {
     for (int test = 0; test < _N_1_SEARCH_TEST; test++) {
         pt = points->at(rand() % _N_TEST_POINTS);
 
-        ret = tree->search(pt, 1);
+        ret = tree->search(pt);
 
         search_iter<_D_, double, std::string> pos; 
         for( pos = ret->begin(); pos != ret->end(); pos++) {
@@ -113,6 +85,9 @@ void KDTreeTestCase::checkInsert() {
 
     CPPUNIT_ASSERT_MESSAGE("check if tree can insert point",
             tree->contains(pt));
+
+    Point<_D_, double, std::string> pt_b(arr, "sup");
+    emptyTree->insert(pt);
 }
 
 void KDTreeTestCase::saveAndLoad() {
@@ -136,7 +111,9 @@ void KDTreeTestCase::saveAndLoad() {
 }
 
 void KDTreeTestCase::nearestNeighbor() {
-
+    
+    // Because these two points both contain a point outside the max
+    // value they must be the ones closest to each other
     double arr_a[_D_];
     arr_a[0] = _MAX_PT_VAL * + 3;
 
@@ -163,3 +140,4 @@ CppUnit::Test *suite() {
 
     return registry.makeTest();
 }
+

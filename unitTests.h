@@ -6,10 +6,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "memoryHelper.hpp"
 #include "KDTree.hpp"
-
+#include "genPoints.hpp"
 
 #define _D_ 8
-#define _N_TEST_POINTS 1000
+#define _N_TEST_POINTS 5000
 #define _N_1_SEARCH_TEST 10
 #define _MAX_PT_VAL 100
 #define _TREE_FNAME "./mytree.tree"

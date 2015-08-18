@@ -11,6 +11,10 @@
 #include "Point.hpp"
 #include "memoryHelper.hpp"
 
+/*
+ * This is a node to hold each of the Points<D, V, E> inside of the
+ * KDTree class.
+ */
 template <size_t D, typename V, typename E>
 class KDNode {
     public:
@@ -24,14 +28,18 @@ class KDNode {
         void setRight(boost::shared_ptr<KDNode<D, V, E>> node);
 
         Point<D, V, E> getPoint() { return this->_point; };
+
+        // returns Point[dim]
         V atDim(int dim);
         size_t getDim(){ return D; }
 
-        boost::shared_ptr<KDNode<D, V, E>> _left;
-        boost::shared_ptr<KDNode<D, V, E>> _right;
-
+        // debugging method to print some node information
         void printNode();
+
+        // operator overloading of [] for easy access of the
+        // vector stored in _point
         V& operator[] (int x);
+
         //Everything serialization related
         friend class boost::serialization::access;
 
@@ -41,8 +49,9 @@ class KDNode {
         }
 
     private:
-        unsigned int _sortedDim;
         Point<D, V, E> _point;
+        boost::shared_ptr<KDNode<D, V, E>> _left;
+        boost::shared_ptr<KDNode<D, V, E>> _right;
 };
 
 template <size_t D, typename V, typename E>

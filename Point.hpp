@@ -11,27 +11,44 @@
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 
+/** 
+ * This class holds information regarding a Point where a vector of
+ * type V and length D represent a point in space.  The Point holds
+ * an element of type E
+*/
 template <size_t D, typename V, typename E>
 class Point {
     private:
         E _element;
         std::vector<V> _vec;
     public:
+
+        // Constructors for default, using a vector, and using
+        // an array.  The array constructor makes it easy to write
+        // tests
         Point(){};
         Point(std::vector<V> points, E element);
         Point(V arr[], E element);
 
+        // allow for indexing the vector with []
         V& operator[] (int x) {
             return _vec[x];
         }
+
+        // equality overloading
         bool operator==(const Point<D, V, E>& other) const;
         bool operator!=(const Point<D, V, E>& other) const;
 
         E getEle() const { return this->_element; };
         size_t getDim() const { return D; }
+
+        // useful when you need to access a Point based
+        // on a memory location.  ex) a->at(4)
         V at(int x){ return _vec[x]; }
         V dist(Point<D, V, E> p);
         std::vector<V> getVec() const { return this->_vec; };
+
+        // debugging statement to print the Point vec
         void sayhi();
 
          //Everything serialization related
@@ -82,4 +99,18 @@ void Point<D, V, E>::sayhi() {
         std::cout<<this->_vec[i]<<" ";
     }
 }
+
+
+template <size_t D, typename V, typename E>
+struct ComparePtByDim {
+    ComparePtByDim(int d) {
+        this-> d = d;
+    }
+
+    bool operator () (Point<D, V, E> i, Point<D, V, E> j) {
+        return i[d] < j[d];
+    }
+
+    int d;
+};
 #endif
