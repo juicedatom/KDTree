@@ -88,7 +88,7 @@ class KDTree {
                 Archive & ar,
                 const unsigned int version
                 ) const {
-            ar & _head;
+            ar & _head & _size;
         }
 };
 
@@ -243,7 +243,7 @@ template <size_t D, typename V, typename E>
 void KDTree<D, V, E>::write(std::string fname) {
     std::ofstream ofs(fname);
     boost::archive::binary_oarchive oa(ofs);
-    oa & this->_head;
+    oa & this->_head & this->_size;
 }
 
 template <size_t D, typename V, typename E>
@@ -326,6 +326,6 @@ template <size_t D, typename V, typename E>
 void KDTree<D, V, E>::read(std::string fname) {
     std::ifstream ifs(fname);
     boost::archive::binary_iarchive ia(ifs);
-    ia & this->_head;
+    ia & this->_head & this->_size;
 }
 #endif

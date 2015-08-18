@@ -119,11 +119,10 @@ void KDTreeTestCase::saveAndLoad() {
 
     treeCopy->read(_TREE_FNAME);
 
-    //CPPUNIT_ASSERT_EQUAL_MESSAGE("check if loaded tree has same size as original",
-            //tree->size(), treeCopy->size());
+    CPPUNIT_ASSERT_EQUAL_MESSAGE("check if loaded tree has same size as original",
+            tree->size(), treeCopy->size());
 
-    //for (size_t i=0; i<points->size(); i++ ){
-    for (size_t i=0; i<1; i++) {
+    for (size_t i=0; i<points->size(); i++ ){
         search_ptr<_D_, double, std::string> ret;
         ret = tree->search(points->at(i), 1);
         CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",

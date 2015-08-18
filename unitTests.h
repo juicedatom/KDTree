@@ -12,7 +12,7 @@
 #define _N_1_SEARCH_TEST 10
 #define _MAX_PT_VAL 100
 #define _K_ 4
-#define _TREE_FNAME "mytree.tree"
+#define _TREE_FNAME "./mytree.tree"
 
 class KDTreeTestCase : public CppUnit::TestCase {
     
