@@ -135,6 +135,25 @@ void KDTreeTestCase::saveAndLoad() {
     }
 }
 
+void KDTreeTestCase::nearestNeighbor() {
+
+    double arr_a[_D_];
+    arr_a[0] = _MAX_PT_VAL * + 3;
+
+    double arr_b[_D_];
+    arr_b[0] = _MAX_PT_VAL * + 4;
+
+    Point<_D_, double, std::string> pt_a(arr_a, "sup");
+    Point<_D_, double, std::string> pt_b(arr_b, "brah");
+
+    tree->insert(pt_a);
+
+    search_ptr<_D_, double, std::string> ret;
+    ret = tree->search(pt_b);
+    ret->begin()->second == pt_a;
+
+}
+
 CppUnit::Test *suite() {
     CppUnit::TestFactoryRegistry &registry =
         CppUnit::TestFactoryRegistry::getRegistry();

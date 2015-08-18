@@ -57,7 +57,7 @@ class KDTree {
 
         std::unique_ptr<std::multimap<V, Point<D, V, E>>> search(
                 Point<D, V, E> p,
-                const unsigned int k,
+                const unsigned int k = 1,
                 const bool bbf = false,
                 const unsigned int maxlevel = 0);
 

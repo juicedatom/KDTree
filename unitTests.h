@@ -23,12 +23,14 @@ class KDTreeTestCase : public CppUnit::TestCase {
     void singleSearchExact();
     void checkInsert();
     void saveAndLoad();
+    void nearestNeighbor();
 
-    CPPUNIT_TEST_SUITE( KDTreeTestCase );
-    CPPUNIT_TEST( checkSize   );
-    CPPUNIT_TEST( singleSearchExact );
-    CPPUNIT_TEST( checkInsert );
-    CPPUNIT_TEST( saveAndLoad );
+    CPPUNIT_TEST_SUITE( KDTreeTestCase  );
+    CPPUNIT_TEST( checkSize             );
+    CPPUNIT_TEST( singleSearchExact     );
+    CPPUNIT_TEST( checkInsert           );
+    CPPUNIT_TEST( saveAndLoad           );
+    CPPUNIT_TEST( nearestNeighbor       );
     CPPUNIT_TEST_SUITE_END();
 
     public: 
