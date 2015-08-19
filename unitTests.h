@@ -9,7 +9,7 @@
 #include "genPoints.hpp"
 
 // how many dimensions we want to run our tests in
-#define _N_ 20
+#define _N_ 8
 
 // number of points to generate for our test tree
 #define _N_TEST_POINTS 1000

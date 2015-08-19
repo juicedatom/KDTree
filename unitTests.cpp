@@ -119,7 +119,6 @@ Point<_N_, double, std::string> genTestPoint(double val, double rest, std::strin
     arr.push_back(val);
     for (int i=1; i<_N_; i++) {
         arr.push_back(rest);
-        std::cout<<"rest: "<<rest<<std::endl;
     }
     Point<_N_, double, std::string> ret(arr, str);
     return ret;
@@ -132,9 +131,6 @@ void KDTreeTestCase::nearestNeighbor() {
     std::vector<Point<_N_, double, std::string>> vec;
     for (int i=0; i<3; i++) {
         Point<_N_, double, std::string> tmp = genTestPoint(i, _MAX_PT_VAL * 10, "fine");
-        std::cout<<"world: ";
-        tmp.sayhi();
-        std::cout<<std::endl;
         vec.push_back(tmp);
         tree->insert(tmp);
     }
@@ -145,11 +141,6 @@ void KDTreeTestCase::nearestNeighbor() {
     search_iter<_N_, double, std::string> pos; 
     int i=0;
     for( pos = ret->begin(); pos != ret->end(); pos++) {
-        std::cout<<"i: "<<i<<std::endl;
-        std::cout<<"key: "<<pos->first<<std::endl;
-        std::cout<<"tree"<<std::endl;
-        tree->sayhi();
-        std::cout<<std::endl;
         CPPUNIT_ASSERT_MESSAGE("check if nearest neighbor exists",
             pos->second == vec[i++]);
     }
