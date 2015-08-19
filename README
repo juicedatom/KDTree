@@ -14,3 +14,11 @@ building
 -----------
 It's pretty simple, just run "make"
 and the Makefile should do its thing.
+
+-----------
+running
+-----------
+The build should generate an executable "TreeTest"
+which will run the unit tests for the tree.
+They aren't very extensive but just enough testing
+to show the tree works
