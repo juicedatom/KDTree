@@ -4,7 +4,7 @@ CPPUNIT_TEST_SUITE_NAMED_REGISTRATION( KDTreeTestCase, "KDTreeTestCase");
 
 void KDTreeTestCase::setUp () {
     //Test some stuff with the file
-    points = genRandStrPoints<_N_>(_N_TEST_POINTS, _MAX_PT_VAL);
+    points = genRandStrPoints<_N_>(_N_TEST_POINTS_, _MAX_PT_VAL_);
     tree = make_unique<KDTree<_N_, double, std::string>>(*points);
     emptyTree = make_unique<KDTree<_N_, double, std::string>>();
 }
@@ -23,7 +23,7 @@ void KDTreeTestCase::checkSize() {
 
     // make sure the tree parsed all the data
     CPPUNIT_ASSERT_EQUAL_MESSAGE("small tree init size check fail",
-            (size_t) _N_TEST_POINTS, tree->size());
+            (size_t) _N_TEST_POINTS_, tree->size());
 
     // Make sure the number of points read in is the same as those added
     CPPUNIT_ASSERT_EQUAL_MESSAGE("check the number of elements in the tree vs points.in", 
@@ -33,8 +33,6 @@ void KDTreeTestCase::checkSize() {
 void KDTreeTestCase::singleSearchExact() {
     
     //make sure we can compare points accuratly
-    //double a[3] = {1,2,3};
-    //double b[3] = {3,2,1};
     std::vector<double> a = {1.0,2.0,3.0};
     std::vector<double> b = {3.0,2.0,1.0}; 
 
@@ -55,8 +53,8 @@ void KDTreeTestCase::singleSearchExact() {
     Point<_N_, double, std::string> pt;
     search_ptr<_N_, double, std::string> ret;
     // Grab a bunch of random known point and look for it in the tree
-    for (int test = 0; test < _N_1_SEARCH_TEST; test++) {
-        pt = points->at(rand() % _N_TEST_POINTS);
+    for (int test = 0; test < _N_1_SEARCH_TEST_; test++) {
+        pt = points->at(rand() % _N_TEST_POINTS_);
 
         ret = tree->search(pt);
 
@@ -71,9 +69,9 @@ void KDTreeTestCase::singleSearchExact() {
 void KDTreeTestCase::checkInsert() {
 
     //this vector can't possibly be in the array because it
-    //has a value above the _MAX_PT_VAL
+    //has a value above the _MAX_PT_VAL_
     std::vector<double> arr;
-    arr.push_back(_MAX_PT_VAL * 2);
+    arr.push_back(_MAX_PT_VAL_ * 2);
     for (int i=1; i<_N_; i++) {
         arr.push_back(i);
     }
@@ -98,12 +96,12 @@ void KDTreeTestCase::checkInsert() {
 
 void KDTreeTestCase::saveAndLoad() {
     
-    tree->write(_TREE_FNAME);
+    tree->write(_TREE_FNAME_);
 
     std::unique_ptr<KDTree<_N_, double, std::string>> treeCopy =
         make_unique<KDTree<_N_, double, std::string>>();
 
-    treeCopy->read(_TREE_FNAME);
+    treeCopy->read(_TREE_FNAME_);
 
     CPPUNIT_ASSERT_EQUAL_MESSAGE("check if loaded tree has same size as original",
             tree->size(), treeCopy->size());
@@ -118,13 +116,13 @@ void KDTreeTestCase::saveAndLoad() {
 
 void KDTreeTestCase::nearestNeighbor() {
    
-    std::vector<double> a(_N_, _MAX_PT_VAL*10);
+    std::vector<double> a(_N_, _MAX_PT_VAL_*10);
     a[0] = 0;
     Point<_N_, double, std::string> pt_a(a, "fine");
 
     std::vector<Point<_N_, double, std::string>> vec;
     for (int i=0; i<3; i++) {
-        std::vector<double> b(_N_, _MAX_PT_VAL*10);
+        std::vector<double> b(_N_, _MAX_PT_VAL_*10);
         b[0] = i;
         Point<_N_, double, std::string> tmp(b, "hi");
         vec.push_back(tmp);

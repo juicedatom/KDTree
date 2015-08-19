@@ -12,18 +12,18 @@
 #define _N_ 8
 
 // number of points to generate for our test tree
-#define _N_TEST_POINTS 1000
+#define _N_TEST_POINTS_ 1000
 
 //maximum value for the points in the randomly generated
 //test tree.
-#define _MAX_PT_VAL 100
+#define _MAX_PT_VAL_ 100
 
 //number of points to check for the checkInsert() test
 //see below...
-#define _N_1_SEARCH_TEST 10
+#define _N_1_SEARCH_TEST_ 10
 
 //filename to save the tree during the saveLoadTest()
-#define _TREE_FNAME "./mytree.tree"
+#define _TREE_FNAME_ "./mytree.tree"
 
 class KDTreeTestCase : public CppUnit::TestCase {
    
