@@ -33,8 +33,10 @@ void KDTreeTestCase::checkSize() {
 void KDTreeTestCase::singleSearchExact() {
     
     //make sure we can compare points accuratly
-    double a[3] = {1,2,3};
-    double b[3] = {3,2,1};
+    //double a[3] = {1,2,3};
+    //double b[3] = {3,2,1};
+    std::vector<double> a = {1.0,2.0,3.0};
+    std::vector<double> b = {3.0,2.0,1.0}; 
 
     //Technically i could do 16 different tests but for now
     //I'm going to test the two that are important to this
@@ -114,23 +116,17 @@ void KDTreeTestCase::saveAndLoad() {
     }
 }
 
-Point<_N_, double, std::string> genTestPoint(double val, double rest, std::string str) {
-    std::vector<double> arr;
-    arr.push_back(val);
-    for (int i=1; i<_N_; i++) {
-        arr.push_back(rest);
-    }
-    Point<_N_, double, std::string> ret(arr, str);
-    return ret;
-}
-
 void KDTreeTestCase::nearestNeighbor() {
    
-    Point<_N_, double, std::string> pt_a = genTestPoint(0, _MAX_PT_VAL * 10, "fine");
+    std::vector<double> a(_N_, _MAX_PT_VAL*10);
+    a[0] = 0;
+    Point<_N_, double, std::string> pt_a(a, "fine");
 
     std::vector<Point<_N_, double, std::string>> vec;
     for (int i=0; i<3; i++) {
-        Point<_N_, double, std::string> tmp = genTestPoint(i, _MAX_PT_VAL * 10, "fine");
+        std::vector<double> b(_N_, _MAX_PT_VAL*10);
+        b[0] = i;
+        Point<_N_, double, std::string> tmp(b, "hi");
         vec.push_back(tmp);
         tree->insert(tmp);
     }

@@ -24,11 +24,10 @@ class Point {
     public:
 
         // Constructors for default, using a vector, and using
-        // an array.  The array constructor makes it easy to write
+        // an array.  The vector constructor makes it easy to write
         // tests
         Point(){};
         Point(std::vector<V> points, E element);
-        Point(V arr[], E element);
 
         // allow for indexing the vector with []
         V& operator[] (int x) {
@@ -62,13 +61,6 @@ class Point {
 template <size_t N, typename V, typename E>
 Point<N, V, E>::Point(std::vector<V> vec, E element) {
     this->_element = element;
-    this->_vec = vec;
-}
-
-template <size_t N, typename V, typename E>
-Point<N, V, E>::Point(V arr[], E element) {
-    this->_element = element;
-    std::vector<V> vec(arr, arr + sizeof(arr) / sizeof(arr[0]) );
     this->_vec = vec;
 }
 
