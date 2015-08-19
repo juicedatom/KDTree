@@ -8,3 +8,9 @@ This code has two dependencies,
 
 if you are using apt then you can simply run
     sudo apt-get install libcppunit-dev libboost-all-dev
+
+-----------
+building
+-----------
+It's pretty simple, just run "make"
+and the Makefile should do its thing.
