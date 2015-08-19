@@ -79,7 +79,7 @@ V Point<N, V, E>::dist(Point<N, V, E> p) {
         V a = p[i] - _vec[i];
         sum += a * a;
     }
-    return sum*sum;
+    return sum;
 }
 
 template <size_t N, typename V, typename E>

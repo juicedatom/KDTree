@@ -70,10 +70,10 @@ void KDTreeTestCase::checkInsert() {
 
     //this vector can't possibly be in the array because it
     //has a value above the _MAX_PT_VAL
-    double arr[_N_];
-    arr[0] = _MAX_PT_VAL * 2;
+    std::vector<double> arr;
+    arr.push_back(_MAX_PT_VAL * 2);
     for (int i=1; i<_N_; i++) {
-        arr[i] = i;
+        arr.push_back(i);
     }
 
     Point<_N_, double, std::string> pt(arr, "sup");
@@ -114,33 +114,29 @@ void KDTreeTestCase::saveAndLoad() {
     }
 }
 
+Point<_N_, double, std::string> genTestPoint(double val, double rest, std::string str) {
+    std::vector<double> arr;
+    arr.push_back(val);
+    for (int i=1; i<_N_; i++) {
+        arr.push_back(rest);
+        std::cout<<"rest: "<<rest<<std::endl;
+    }
+    Point<_N_, double, std::string> ret(arr, str);
+    return ret;
+}
+
 void KDTreeTestCase::nearestNeighbor() {
-    
-    // Because these two points both contain a point outside the max
-    // value they must be the ones closest to each other
-    double arr_a[_N_];
-    arr_a[0] = _MAX_PT_VAL * + 3;
-    Point<_N_, double, std::string> pt_a(arr_a, "sup");
-
-    double arr_b[_N_];
-    arr_b[0] = _MAX_PT_VAL * + 4;
-    Point<_N_, double, std::string> pt_b(arr_b, "brah");
-
-    double arr_c[_N_];
-    arr_c[0] = _MAX_PT_VAL * + 5;
-    Point<_N_, double, std::string> pt_c(arr_c, "im");
-
-    double arr_d[_N_];
-    arr_d[0] = _MAX_PT_VAL * + 6;
-    Point<_N_, double, std::string> pt_d(arr_d, "fine");
+   
+    Point<_N_, double, std::string> pt_a = genTestPoint(0, _MAX_PT_VAL * 10, "fine");
 
     std::vector<Point<_N_, double, std::string>> vec;
-    vec.push_back(pt_b);
-    vec.push_back(pt_c);
-    vec.push_back(pt_d);
-
-    for (size_t i=0; i<vec.size(); i++) {
-        tree->insert(vec[i]);
+    for (int i=0; i<3; i++) {
+        Point<_N_, double, std::string> tmp = genTestPoint(i, _MAX_PT_VAL * 10, "fine");
+        std::cout<<"world: ";
+        tmp.sayhi();
+        std::cout<<std::endl;
+        vec.push_back(tmp);
+        tree->insert(tmp);
     }
 
     search_ptr<_N_, double, std::string> ret;
@@ -149,9 +145,15 @@ void KDTreeTestCase::nearestNeighbor() {
     search_iter<_N_, double, std::string> pos; 
     int i=0;
     for( pos = ret->begin(); pos != ret->end(); pos++) {
-        CPPUNIT_ASSERT_MESSAGE("checking if point transferred ok",
+        std::cout<<"i: "<<i<<std::endl;
+        std::cout<<"key: "<<pos->first<<std::endl;
+        std::cout<<"tree"<<std::endl;
+        tree->sayhi();
+        std::cout<<std::endl;
+        CPPUNIT_ASSERT_MESSAGE("check if nearest neighbor exists",
             pos->second == vec[i++]);
     }
+
 
 }
 

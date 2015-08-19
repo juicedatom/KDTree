@@ -8,6 +8,3 @@ This code has two dependencies,
 
 if you are using apt then you can simply run
     sudo apt-get install libcppunit-dev libboost-all-dev
-
-if you are using yum
-    sudo yum install boost-devel cppunit

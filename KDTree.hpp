@@ -215,7 +215,7 @@ boost::shared_ptr<KDNode<N, V, E>> KDTree<N, V, E>::buildTree(
 
     // get the current axis to sort on, sort the points
     // based on that and extract the median
-    int axis = depth % N;
+    int axis = depth++ % N;
     points = sortByDim(points, axis);
     int split = getSplit(points, sm, axis);
 
@@ -226,7 +226,6 @@ boost::shared_ptr<KDNode<N, V, E>> KDTree<N, V, E>::buildTree(
     std::vector<Point<N, V, E>> _right(points.begin() + split + 1, points.end());
 
     // recurse
-    depth++;
     node->setLeft(buildTree(_left, depth, sm));
     node->setRight(buildTree(_right, depth, sm));
     return node;
@@ -361,6 +360,7 @@ std::unique_ptr<std::multimap<V, Point<N, V, E>>> KDTree<N, V, E>::knnTraverse(
 
         // if we are within the hypersphere of the point, backtrack
         V best = pq->begin()->first;
+        //V best = pq->begin()->second[axis];
         if (pq->size() < k || std::abs(cur->getPoint()[axis] - p[axis]) <= best) {
             if (left) {
                 pq = knnTraverse(cur->getRight(), p, std::move(pq), k, level, bbf, maxlevel);
