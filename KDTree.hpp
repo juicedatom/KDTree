@@ -1,22 +1,23 @@
 #ifndef KDTREE
 #define KDTREE
 
-#include <vector>
 #include <algorithm>
+#include <cmath>
+#include <exception>
+#include <map>
 #include <memory>
 #include <string>
-#include <cmath>
-#include <map>
-#include <exception>
+#include <vector>
+
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/binary_iarchive.hpp>
 
 #include "KDNode.hpp"
-#include "memoryHelper.hpp"
 #include "Point.hpp"
+#include "memoryHelper.hpp"
 
 #ifndef KDTREE_HELPERS
 #define KDTREE_HELPERS

@@ -2,11 +2,11 @@
 #define KDNODE_H
 
 #include <boost/serialization/list.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/split_member.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/version.hpp>
 
 #include "Point.hpp"
 #include "memoryHelper.hpp"

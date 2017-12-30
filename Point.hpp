@@ -1,15 +1,15 @@
 #ifndef POINT_H
 #define POINT_H
 
-#include <vector>
+#include <cmath>
 #include <string>
+#include <vector>
 
 #include <boost/serialization/list.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/version.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include <cmath>
+#include <boost/serialization/version.hpp>
 
 /** 
  * This class holds information regarding a Point where a vector of
